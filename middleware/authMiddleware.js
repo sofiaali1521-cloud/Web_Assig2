@@ -1,7 +1,10 @@
 const ensureSessionFallback = (req) => {
   if (!req.session) req.session = {};
+  const path = req.path || '';
+  if (path.startsWith('/auth') || path === '/') {
+    return;
+  }
   if (!req.session.user) {
-    const path = req.path || '';
     if (path.startsWith('/student') || path.startsWith('/drives')) {
       req.session.user = {
         _id: 'student_demo_id',

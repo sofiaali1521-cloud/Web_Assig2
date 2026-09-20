@@ -10,9 +10,6 @@ const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // Render Login Form
 exports.getLogin = (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
   res.render('auth/login', {
     title: 'Login - Campus Placement System',
     errors: [],
@@ -88,9 +85,6 @@ exports.postLogin = async (req, res, next) => {
 
 // Render Role Selection Form
 exports.getRegisterSelect = (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
   res.render('auth/register-select', {
     title: 'Select Account Type - Campus Placement System'
   });
@@ -98,9 +92,6 @@ exports.getRegisterSelect = (req, res) => {
 
 // Render Student Registration Form
 exports.getStudentRegister = (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
   res.render('auth/register', {
     title: 'Student Registration - Campus Placement System',
     errors: [],
@@ -194,9 +185,6 @@ exports.postStudentRegister = async (req, res, next) => {
 
 // Render Recruiter Registration Form
 exports.getRecruiterRegister = (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
   res.render('auth/register-recruiter', {
     title: 'Recruiter Registration - Campus Placement System',
     errors: [],
@@ -291,9 +279,6 @@ exports.postRecruiterRegister = async (req, res, next) => {
 
 // Render Admin Registration Form
 exports.getAdminRegister = (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/');
-  }
   res.render('auth/register-admin', {
     title: 'TPO Admin Registration - Campus Placement System',
     errors: [],

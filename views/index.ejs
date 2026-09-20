@@ -41,13 +41,13 @@
         </p>
       </div>
       <div>
-        <% if (!user) { %>
+        <% if (user && user.role === 'student') { %>
+          <a href="/student/dashboard" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Open Student Dashboard &rarr;</a>
+        <% } else { %>
           <div style="display: flex; gap: 0.5rem;">
             <a href="/auth/register/student" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;">Register</a>
             <a href="/auth/login" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">Sign In</a>
           </div>
-        <% } else if (user.role === 'student') { %>
-          <a href="/student/dashboard" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Open Dashboard</a>
         <% } %>
       </div>
     </div>
@@ -64,13 +64,13 @@
         </p>
       </div>
       <div>
-        <% if (!user) { %>
+        <% if (user && user.role === 'recruiter') { %>
+          <a href="/recruiter/dashboard" class="btn btn-success btn-sm" style="width: 100%; text-align: center;">Open Recruiter Dashboard &rarr;</a>
+        <% } else { %>
           <div style="display: flex; gap: 0.5rem;">
             <a href="/auth/register/recruiter" class="btn btn-success btn-sm" style="flex: 1; text-align: center;">Recruiter Sign Up</a>
             <a href="/auth/login" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">Sign In</a>
           </div>
-        <% } else if (user.role === 'recruiter') { %>
-          <a href="/recruiter/dashboard" class="btn btn-success btn-sm" style="width: 100%; text-align: center;">Open Dashboard</a>
         <% } %>
       </div>
     </div>
@@ -87,10 +87,13 @@
         </p>
       </div>
       <div>
-        <% if (!user) { %>
-          <a href="/auth/login" class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Admin Log In</a>
-        <% } else if (user.role === 'admin') { %>
-          <a href="/admin/dashboard" class="btn btn-warning btn-sm" style="width: 100%; text-align: center;">Open Dashboard</a>
+        <% if (user && user.role === 'admin') { %>
+          <a href="/admin/dashboard" class="btn btn-warning btn-sm" style="width: 100%; text-align: center; color: #fff;">Open Admin Dashboard &rarr;</a>
+        <% } else { %>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/auth/register/admin" class="btn btn-warning btn-sm" style="flex: 1; text-align: center; color: #fff;">Admin Sign Up</a>
+            <a href="/auth/login" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">Sign In</a>
+          </div>
         <% } %>
       </div>
     </div>
