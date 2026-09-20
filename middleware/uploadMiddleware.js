@@ -1,11 +1,20 @@
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const multer = require('multer');
 
-// Ensure destination upload directories exist
-const uploadDir = path.join(__dirname, '../public/uploads/resumes');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Determine destination upload directory (Vercel read-only filesystem support)
+const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+const uploadDir = isVercel
+  ? path.join(os.tmpdir(), 'uploads', 'resumes')
+  : path.join(__dirname, '../public/uploads/resumes');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('Upload directory creation skipped or failed:', err.message);
 }
 
 // Storage Configuration
