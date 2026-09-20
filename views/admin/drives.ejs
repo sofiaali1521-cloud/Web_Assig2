@@ -1,0 +1,144 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Drive Oversight & Management</h1>
+      <p style="color: var(--text-muted);">Monitor, filter, close, or cancel campus placement and internship drives.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/admin/dashboard" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600;">&larr; Admin Dashboard</a>
+    </div>
+  </div>
+
+  <% if (success) { %>
+    <div class="alert alert-success" style="margin-bottom: 1.5rem;"><%= success %></div>
+  <% } %>
+  <% if (error) { %>
+    <div class="alert alert-danger" style="margin-bottom: 1.5rem;"><%= error %></div>
+  <% } %>
+
+  <!-- Filter Form -->
+  <div style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+    <form action="/admin/drives" method="GET" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+      <div style="flex: 1; min-width: 180px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">Search Drive/Role</label>
+        <input type="text" name="search" value="<%= filters.search %>" placeholder="Title or Role..." style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+      </div>
+
+      <div style="min-width: 150px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">Drive Type</label>
+        <select name="driveType" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Types</option>
+          <option value="placement" <%= filters.driveType === 'placement' ? 'selected' : '' %>>Placement</option>
+          <option value="internship" <%= filters.driveType === 'internship' ? 'selected' : '' %>>Internship</option>
+        </select>
+      </div>
+
+      <div style="min-width: 150px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">Status</label>
+        <select name="status" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Statuses</option>
+          <option value="published" <%= filters.status === 'published' ? 'selected' : '' %>>Published</option>
+          <option value="closed" <%= filters.status === 'closed' ? 'selected' : '' %>>Closed</option>
+          <option value="cancelled" <%= filters.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+          <option value="draft" <%= filters.status === 'draft' ? 'selected' : '' %>>Draft</option>
+        </select>
+      </div>
+
+      <div style="min-width: 180px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">Company</label>
+        <select name="company" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Companies</option>
+          <% companies.forEach(comp => { %>
+            <option value="<%= comp._id %>" <%= filters.company === comp._id.toString() ? 'selected' : '' %>><%= comp.companyName %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="submit" style="background: var(--primary-color); color: white; padding: 0.55rem 1.2rem; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Filter</button>
+        <a href="/admin/drives" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.55rem 1rem; border-radius: 4px; text-decoration: none; font-size: 0.9rem;">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Drives Table -->
+  <div style="background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="background: var(--bg-card); border-bottom: 2px solid var(--border-color);">
+          <th style="padding: 1rem;">Drive / Role</th>
+          <th style="padding: 1rem;">Company</th>
+          <th style="padding: 1rem;">Type</th>
+          <th style="padding: 1rem;">Compensation</th>
+          <th style="padding: 1rem;">Deadline</th>
+          <th style="padding: 1rem;">Status</th>
+          <th style="padding: 1rem; text-align: right;">Admin Controls</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (drives.length === 0) { %>
+          <tr>
+            <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">No placement or internship drives found matching criteria.</td>
+          </tr>
+        <% } else { %>
+          <% drives.forEach(drive => { %>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 1rem;">
+                <a href="/drives/<%= drive._id %>" style="font-weight: 700; color: var(--primary-color); text-decoration: none;"><%= drive.title %></a>
+                <div style="font-size: 0.85rem; color: var(--text-muted);"><%= drive.role %></div>
+              </td>
+              <td style="padding: 1rem;">
+                <%= drive.company ? drive.company.companyName : 'N/A' %>
+              </td>
+              <td style="padding: 1rem;">
+                <span style="font-size: 0.75rem; text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; background: <%= drive.driveType === 'placement' ? '#e0e7ff' : '#fef3c7' %>; color: <%= drive.driveType === 'placement' ? '#3730a3' : '#92400e' %>;">
+                  <%= drive.driveType %>
+                </span>
+              </td>
+              <td style="padding: 1rem; font-weight: 600;">
+                <% if (drive.driveType === 'placement') { %>
+                  ₹<%= drive.package %> LPA
+                <% } else { %>
+                  ₹<%= drive.stipend %>/mo
+                <% } %>
+              </td>
+              <td style="padding: 1rem; font-size: 0.85rem;">
+                <%= drive.lastDate ? new Date(drive.lastDate).toLocaleDateString() : 'N/A' %>
+              </td>
+              <td style="padding: 1rem;">
+                <span style="font-size: 0.8rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 20px; 
+                  background: <%= drive.status === 'published' ? '#dcfce7' : drive.status === 'closed' ? '#fee2e2' : drive.status === 'cancelled' ? '#f3f4f6' : '#fef3c7' %>;
+                  color: <%= drive.status === 'published' ? '#166534' : drive.status === 'closed' ? '#991b1b' : drive.status === 'cancelled' ? '#374151' : '#92400e' %>;">
+                  <%= drive.status.toUpperCase() %>
+                </span>
+              </td>
+              <td style="padding: 1rem; text-align: right;">
+                <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+                  <% if (drive.status === 'published') { %>
+                    <form action="/admin/drives/<%= drive._id %>/status" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="closed">
+                      <button type="submit" style="background: #ef4444; color: white; border: none; padding: 0.35rem 0.7rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Close Drive</button>
+                    </form>
+                    <form action="/admin/drives/<%= drive._id %>/status" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="cancelled">
+                      <button type="submit" style="background: #6b7280; color: white; border: none; padding: 0.35rem 0.7rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Cancel</button>
+                    </form>
+                  <% } else if (drive.status === 'closed' || drive.status === 'cancelled' || drive.status === 'draft') { %>
+                    <form action="/admin/drives/<%= drive._id %>/status" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="published">
+                      <button type="submit" style="background: #16a34a; color: white; border: none; padding: 0.35rem 0.7rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">Publish Drive</button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

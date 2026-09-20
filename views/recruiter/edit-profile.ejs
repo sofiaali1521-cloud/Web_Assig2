@@ -1,0 +1,98 @@
+<%- include('../partials/header') %>
+
+<%
+  let existingPhone = (profile && profile.user && profile.user.phone) ? profile.user.phone.trim() : '';
+  let selectedCountryCode = '+91';
+  let rawPhoneNumber = existingPhone;
+
+  const knownCodes = ['+91', '+1', '+44', '+971', '+65', '+61', '+49', '+81', '+33', '+86'];
+  for (const code of knownCodes) {
+    if (existingPhone.startsWith(code)) {
+      selectedCountryCode = code;
+      rawPhoneNumber = existingPhone.slice(code.length).trim();
+      break;
+    }
+  }
+%>
+
+<main class="container">
+  <div style="max-width: 680px; margin: 1.5rem auto; background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+    <h2 style="margin-bottom: 0.5rem; color: var(--text-color);">Edit Recruiter & Company Info</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Update recruiter contact details and company information.</p>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <ul style="margin-left: 1.2rem; margin-top: 0; margin-bottom: 0;">
+          <% errors.forEach(err => { %>
+            <li><%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/recruiter/profile/edit" method="POST">
+      <h3 style="font-size: 1.05rem; color: var(--text-color); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-color);">Recruiter Contact Details</h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Recruiter Full Name *</label>
+          <input type="text" name="name" value="<%= profile.user ? profile.user.name : '' %>" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Designation *</label>
+          <input type="text" name="designation" value="<%= profile.designation || '' %>" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <!-- Contact Phone with Country Code Dropdown -->
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Contact Phone Number</label>
+        <div style="display: flex; gap: 0.5rem; width: 100%;">
+          <select name="countryCode" style="width: 160px; padding: 0.75rem 0.5rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color); font-weight: 600; cursor: pointer;">
+            <option value="+91" <%= selectedCountryCode === '+91' ? 'selected' : '' %>>🇮🇳 +91 (IN)</option>
+            <option value="+1" <%= selectedCountryCode === '+1' ? 'selected' : '' %>>🇺🇸 +1 (US/CA)</option>
+            <option value="+44" <%= selectedCountryCode === '+44' ? 'selected' : '' %>>🇬🇧 +44 (UK)</option>
+            <option value="+971" <%= selectedCountryCode === '+971' ? 'selected' : '' %>>🇦🇪 +971 (UAE)</option>
+            <option value="+65" <%= selectedCountryCode === '+65' ? 'selected' : '' %>>🇸🇬 +65 (SG)</option>
+            <option value="+61" <%= selectedCountryCode === '+61' ? 'selected' : '' %>>🇦🇺 +61 (AU)</option>
+            <option value="+49" <%= selectedCountryCode === '+49' ? 'selected' : '' %>>🇩🇪 +49 (DE)</option>
+            <option value="+81" <%= selectedCountryCode === '+81' ? 'selected' : '' %>>🇯🇵 +81 (JP)</option>
+            <option value="+33" <%= selectedCountryCode === '+33' ? 'selected' : '' %>>🇫🇷 +33 (FR)</option>
+            <option value="" <%= knownCodes.includes(selectedCountryCode) ? '' : 'selected' %>>🌐 Other</option>
+          </select>
+          <input type="tel" name="phoneNumber" value="<%= rawPhoneNumber %>" placeholder="9876543210" style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <h3 style="font-size: 1.05rem; color: var(--text-color); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-color);">Company Details (<%= company ? (company.name || company.companyName) : 'Hiring Company' %>)</h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Industry</label>
+          <input type="text" name="industry" value="<%= company ? company.industry || '' : '' %>" placeholder="Software & Cloud Services" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Location / HQ</label>
+          <input type="text" name="location" value="<%= company ? company.location || '' : '' %>" placeholder="San Francisco, CA" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Official Website URL</label>
+        <input type="url" name="website" value="<%= company ? company.website || '' : '' %>" placeholder="https://www.company.com" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Company Description</label>
+        <textarea name="description" rows="4" placeholder="Brief summary of company products and recruitment expectations..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; background: var(--surface-color); color: var(--text-color);"><%= company ? company.description || '' : '' %></textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="/recruiter/profile" style="padding: 0.75rem 1.5rem; background: rgba(0,0,0,0.05); color: var(--text-color); border-radius: 6px; text-decoration: none; font-weight: 600;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 600;">Save Information</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

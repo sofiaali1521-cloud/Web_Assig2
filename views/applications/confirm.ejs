@@ -1,0 +1,81 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="max-width: 680px; margin: 1.5rem auto; background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+      <span style="font-size: 2.5rem;">📋</span>
+      <h2 style="color: var(--secondary-color); margin-top: 0.5rem;">Confirm Application Submission</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Please review your application snapshot before submitting</p>
+    </div>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <ul style="margin-left: 1.2rem;">
+          <% errors.forEach(err => { %>
+            <li><%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <!-- Drive Summary Box -->
+    <div style="background: #f8fafc; padding: 1.2rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 0.4rem;"><%= drive.company ? drive.company.name : 'Company' %> — <%= drive.title %></h3>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Role: <strong><%= drive.role %></strong> (<%= drive.workMode %>)</p>
+      <div style="display: flex; gap: 1.5rem; font-size: 0.88rem;">
+        <span>Drive Type: <strong style="text-transform: capitalize;"><%= drive.driveType %></strong></span>
+        <span>Compensation: <strong style="color: #16a34a;"><%= drive.driveType === 'placement' ? `₹${drive.package} LPA` : `₹${drive.stipend}/mo` %></strong></span>
+      </div>
+    </div>
+
+    <!-- Student Profile Snapshot Box -->
+    <div style="background: var(--card-bg); padding: 1.2rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.95rem; color: var(--secondary-color); margin-bottom: 0.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">Applicant Profile Snapshot</h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
+        <div>Applicant Name: <strong><%= studentProfile ? studentProfile.fullName : user.name %></strong></div>
+        <div>College Roll ID: <strong><%= studentProfile ? studentProfile.collegeId : 'N/A' %></strong></div>
+        <div>Branch & Course: <strong><%= studentProfile ? studentProfile.course + ' ' + studentProfile.branch : 'N/A' %></strong></div>
+        <div>Current CGPA: <strong><%= studentProfile ? studentProfile.cgpa.toFixed(2) : '0.00' %> / 10.0</strong></div>
+        <div style="grid-column: 1 / -1;">
+          Resume Document: 
+          <% if (studentProfile && studentProfile.resumeLink) { %>
+            <a href="<%= studentProfile.resumeLink %>" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); font-weight: 600;">View Saved Resume &nearr;</a>
+          <% } else { %>
+            <span style="color: #dc2626;">Missing Resume</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eligibility Checklist Summary -->
+    <div style="margin-bottom: 1.5rem;">
+      <% if (eligibilityInfo && eligibilityInfo.isEligible) { %>
+        <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.85rem; border-radius: 6px; font-size: 0.88rem;">
+          ✅ <strong>Backend Verification Passed:</strong> You satisfy all eligibility criteria for CGPA, branch, graduation year, and required skills.
+        </div>
+      <% } else { %>
+        <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.85rem; border-radius: 6px; font-size: 0.88rem;">
+          ⚠️ <strong>Backend Verification Failed:</strong> You do not satisfy the criteria for this drive.
+          <ul style="margin-left: 1.2rem; margin-top: 0.4rem;">
+            <% eligibilityInfo.reasons.forEach(r => { %>
+              <li><%= r %></li>
+            <% }); %>
+          </ul>
+        </div>
+      <% } %>
+    </div>
+
+    <form action="/drives/<%= drive._id %>/apply" method="POST">
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="/drives/<%= drive._id %>" style="padding: 0.75rem 1.5rem; background: #e2e8f0; color: var(--text-main); border-radius: 6px; text-decoration: none; font-weight: 600;">Cancel</a>
+        <% if (eligibilityInfo && eligibilityInfo.isEligible) { %>
+          <button type="submit" style="padding: 0.75rem 1.5rem; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Confirm & Submit Application</button>
+        <% } else { %>
+          <button disabled style="padding: 0.75rem 1.5rem; background: #cbd5e1; color: #64748b; border: none; border-radius: 6px; font-weight: 600; cursor: not-allowed;">Submission Blocked</button>
+        <% } %>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

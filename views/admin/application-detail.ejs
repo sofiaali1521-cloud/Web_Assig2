@@ -1,0 +1,209 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Candidate Application Dossier</h1>
+      <p style="color: var(--text-muted);">Detailed audit of student profile, drive criteria, live eligibility check, and admin status overrides.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/admin/applications" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600;">&larr; Back to Applications Audit</a>
+    </div>
+  </div>
+
+  <% if (success) { %>
+    <div class="alert alert-success" style="margin-bottom: 1.5rem;"><%= success %></div>
+  <% } %>
+  <% if (error) { %>
+    <div class="alert alert-danger" style="margin-bottom: 1.5rem;"><%= error %></div>
+  <% } %>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Student Information Card -->
+    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+        👤 Student Profile Overview
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Full Name</label>
+          <strong style="font-size: 1.1rem; color: var(--secondary-color);"><%= application.student ? application.student.name : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Email Address</label>
+          <strong><%= application.student ? application.student.email : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Roll / College ID</label>
+          <strong style="font-family: monospace; color: var(--primary-color);"><%= studentProfile ? studentProfile.collegeId : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Branch & Graduation</label>
+          <strong><%= studentProfile ? studentProfile.branch : 'N/A' %> (<%= studentProfile ? studentProfile.graduationYear : 'N/A' %>)</strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">CGPA</label>
+          <strong style="color: #16a34a; font-size: 1.1rem;"><%= studentProfile && studentProfile.cgpa !== undefined ? studentProfile.cgpa.toFixed(2) : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Course</label>
+          <strong><%= studentProfile ? studentProfile.course : 'N/A' %></strong>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Technical Skills</label>
+        <% if (studentProfile && studentProfile.skills && studentProfile.skills.length > 0) { %>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <% studentProfile.skills.forEach(skill => { %>
+              <span style="background: #f3f4f6; color: #374151; font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.5rem; border-radius: 4px;"><%= skill %></span>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">No skills listed</span>
+        <% } %>
+      </div>
+
+      <div style="margin-top: 1.25rem;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Resume</label>
+        <% if (studentProfile && studentProfile.resumeLink) { %>
+          <a href="<%= studentProfile.resumeLink %>" target="_blank" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">📄 View Student Resume Document &rarr;</a>
+        <% } else { %>
+          <span style="color: #ef4444; font-size: 0.85rem; font-weight: 600;">⚠️ Resume Link Missing</span>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Company & Drive Specifications Card -->
+    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+        🏢 Drive & Company Specifications
+      </h3>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Company Name</label>
+        <strong style="font-size: 1.1rem; color: var(--secondary-color);"><%= application.drive && application.drive.company ? application.drive.company.companyName : 'N/A' %></strong>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Drive Title</label>
+          <strong><%= application.drive ? application.drive.title : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Role</label>
+          <strong><%= application.drive ? application.drive.role : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Drive Type</label>
+          <span style="text-transform: uppercase; font-weight: 700; font-size: 0.8rem; color: var(--primary-color);"><%= application.drive ? application.drive.driveType : 'N/A' %></span>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Compensation</label>
+          <strong>
+            <% if (application.drive) { %>
+              <%= application.drive.driveType === 'placement' ? `₹${application.drive.package} LPA` : `₹${application.drive.stipend}/mo` %>
+            <% } %>
+          </strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Minimum Cutoff CGPA</label>
+          <strong><%= application.drive ? application.drive.minimumCGPA : '0' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Eligible Branches</label>
+          <strong><%= application.drive && application.drive.eligibleBranches ? application.drive.eligibleBranches.join(', ') : 'All' %></strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Eligibility Verification Breakdown -->
+  <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+    <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+      <span>⚡ Live Eligibility Engine Status Check</span>
+      <span style="font-size: 0.9rem; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 700; background: <%= eligibilityResult.isEligible ? '#dcfce7' : '#fee2e2' %>; color: <%= eligibilityResult.isEligible ? '#166534' : '#991b1b' %>;">
+        <%= eligibilityResult.isEligible ? '✅ Satisfies All Rules' : '❌ Failed Rules Detected' %>
+      </span>
+    </h3>
+
+    <% if (!eligibilityResult.isEligible) { %>
+      <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+        <strong style="color: #991b1b; display: block; margin-bottom: 0.5rem;">Detected Eligibility Failures:</strong>
+        <ul style="margin: 0; padding-left: 1.2rem; color: #991b1b; font-size: 0.9rem;">
+          <% eligibilityResult.reasons.forEach(reason => { %>
+            <li><%= reason %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } else { %>
+      <p style="color: #166534; font-weight: 600; margin-bottom: 1rem;">Candidate meets all mandatory CGPA, branch, skill, and deadline parameters for this drive.</p>
+    <% } %>
+  </div>
+
+  <!-- Status & Admin Override Controls -->
+  <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+    <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+      🛠️ Admin Status Override & Audit Panel
+    </h3>
+
+    <div style="margin-bottom: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap;">
+      <div>
+        <label style="font-size: 0.85rem; color: var(--text-muted); display: block;">Current Application Status</label>
+        <span style="font-size: 1rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 0.2rem;
+          background: <%= application.status === 'selected' ? '#dcfce7' : application.status === 'rejected' ? '#fee2e2' : application.status === 'interviewed' ? '#e0e7ff' : application.status === 'shortlisted' ? '#fef3c7' : '#f3f4f6' %>;
+          color: <%= application.status === 'selected' ? '#166534' : application.status === 'rejected' ? '#991b1b' : application.status === 'interviewed' ? '#3730a3' : application.status === 'shortlisted' ? '#92400e' : '#374151' %>;">
+          <%= application.status %>
+        </span>
+      </div>
+
+      <div>
+        <label style="font-size: 0.85rem; color: var(--text-muted); display: block;">Application Date</label>
+        <strong style="display: inline-block; margin-top: 0.3rem;"><%= new Date(application.appliedAt).toLocaleString() %></strong>
+      </div>
+
+      <% if (application.adminOverrideReason) { %>
+        <div>
+          <label style="font-size: 0.85rem; color: var(--text-muted); display: block;">Last Admin Override</label>
+          <strong style="color: #7c3aed; display: inline-block; margin-top: 0.3rem;"><%= application.adminOverrideReason %></strong>
+          <% if (application.adminOverriddenBy) { %>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">By: <%= application.adminOverriddenBy.name %></div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <form action="/admin/applications/<%= application._id %>/override-status" method="POST" style="background: var(--bg-card); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border-color);">
+      <h4 style="font-size: 1rem; color: var(--secondary-color); margin-bottom: 1rem;">Override Status (With Audit Log)</h4>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">New Status</label>
+          <select name="status" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+            <option value="applied" <%= application.status === 'applied' ? 'selected' : '' %>>Applied</option>
+            <option value="shortlisted" <%= application.status === 'shortlisted' ? 'selected' : '' %>>Shortlisted</option>
+            <option value="interviewed" <%= application.status === 'interviewed' ? 'selected' : '' %>>Interviewed</option>
+            <option value="selected" <%= application.status === 'selected' ? 'selected' : '' %>>Selected (Creates Placement Record)</option>
+            <option value="rejected" <%= application.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+            <option value="withdrawn" <%= application.status === 'withdrawn' ? 'selected' : '' %>>Withdrawn</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">Interview Date (If Shortlisted/Interviewed)</label>
+          <input type="date" name="interviewDate" value="<%= application.interviewDate ? new Date(application.interviewDate).toISOString().split('T')[0] : '' %>" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem;">Admin Audit / Screening Notes</label>
+        <textarea name="notes" rows="3" placeholder="Enter reason for admin status override or screening notes..." style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);"><%= application.screeningNotes || '' %></textarea>
+      </div>
+
+      <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 0.65rem 1.5rem; border-radius: 4px; font-weight: 600; cursor: pointer;">Save Status Override & Audit</button>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

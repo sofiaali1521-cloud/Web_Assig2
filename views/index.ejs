@@ -1,0 +1,100 @@
+<%- include('partials/header') %>
+
+<main class="container">
+  <div class="hero" style="text-align: center; margin-bottom: 2.5rem; padding: 2.5rem 1.5rem; background: var(--surface-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+    <span class="badge" style="background: rgba(79, 70, 229, 0.1); color: var(--primary-color); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-weight: 600; font-size: 0.85rem; display: inline-block; margin-bottom: 1rem;">
+      🎓 University Placement & Internship Portal
+    </span>
+    <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-color); margin-bottom: 1rem; line-height: 1.2;">
+      Campus Placement & Internship System
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 720px; margin: 0 auto 2rem auto; line-height: 1.6;">
+      Connecting students, corporate recruiters, and placement officers into a unified ecosystem. Streamline hiring drives, automate eligibility validation, and track applications real-time.
+    </p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="/drives" class="btn btn-primary btn-lg" style="padding: 0.75rem 1.75rem; font-weight: 600;">
+        🔍 Browse Placement Drives
+      </a>
+      <% if (!user) { %>
+        <a href="/auth/login" class="btn btn-outline btn-lg" style="padding: 0.75rem 1.75rem; font-weight: 600;">
+          🔑 Sign In to Portal
+        </a>
+      <% } else { %>
+        <a href="/<%= user.role %>/dashboard" class="btn btn-success btn-lg" style="padding: 0.75rem 1.75rem; font-weight: 600;">
+          📊 Go to My Dashboard
+        </a>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+    <!-- Student Portal Card -->
+    <div class="feature-card" style="background: var(--surface-color); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(79, 70, 229, 0.1); color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.25rem;">
+          👨‍🎓
+        </div>
+        <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-color); margin-bottom: 0.75rem;">Student Portal</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+          Build your profile, discover eligible placement & internship drives, inspect live eligibility rules, and track your application status pipeline.
+        </p>
+      </div>
+      <div>
+        <% if (!user) { %>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/auth/register/student" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;">Register</a>
+            <a href="/auth/login" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">Sign In</a>
+          </div>
+        <% } else if (user.role === 'student') { %>
+          <a href="/student/dashboard" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Open Dashboard</a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Recruiter Portal Card -->
+    <div class="feature-card" style="background: var(--surface-color); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: var(--success-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.25rem;">
+          🏢
+        </div>
+        <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-color); margin-bottom: 0.75rem;">Recruiter Portal</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+          Publish hiring drives, set branch & CGPA cutoff criteria, review student dossiers, and manage shortlisted candidate interview pipelines.
+        </p>
+      </div>
+      <div>
+        <% if (!user) { %>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/auth/register/recruiter" class="btn btn-success btn-sm" style="flex: 1; text-align: center;">Recruiter Sign Up</a>
+            <a href="/auth/login" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">Sign In</a>
+          </div>
+        <% } else if (user.role === 'recruiter') { %>
+          <a href="/recruiter/dashboard" class="btn btn-success btn-sm" style="width: 100%; text-align: center;">Open Dashboard</a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Admin & TPO Portal Card -->
+    <div class="feature-card" style="background: var(--surface-color); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); color: var(--warning-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.25rem;">
+          🛡️
+        </div>
+        <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-color); margin-bottom: 0.75rem;">Admin & TPO Portal</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+          Verify company profiles, oversee university-wide placement drives, audit application records, and track college placement policy state.
+        </p>
+      </div>
+      <div>
+        <% if (!user) { %>
+          <a href="/auth/login" class="btn btn-outline btn-sm" style="width: 100%; text-align: center;">Admin Log In</a>
+        <% } else if (user.role === 'admin') { %>
+          <a href="/admin/dashboard" class="btn btn-warning btn-sm" style="width: 100%; text-align: center;">Open Dashboard</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

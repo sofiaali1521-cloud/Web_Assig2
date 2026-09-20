@@ -1,0 +1,165 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Placement Records & Selected Students</h1>
+      <p style="color: var(--text-muted);">Monitor overall placement performance, offer packages, and manual placement entries.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/admin/dashboard" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600;">&larr; Admin Dashboard</a>
+    </div>
+  </div>
+
+  <% if (success) { %>
+    <div class="alert alert-success" style="margin-bottom: 1.5rem;"><%= success %></div>
+  <% } %>
+  <% if (error) { %>
+    <div class="alert alert-danger" style="margin-bottom: 1.5rem;"><%= error %></div>
+  <% } %>
+
+  <!-- Summary Statistics Grid -->
+  <div class="features-grid" style="margin-bottom: 2rem;">
+    <div class="feature-card" style="border-left: 4px solid #16a34a;">
+      <h3 style="font-size: 2.2rem; color: #16a34a; margin-bottom: 0.2rem;"><%= stats.totalPlaced %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Students Selected</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid var(--primary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--primary-color); margin-bottom: 0.2rem;"><%= stats.fullTimeCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Full-Time Placements</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size: 2.2rem; color: #d97706; margin-bottom: 0.2rem;"><%= stats.internshipCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Internship Offers</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid var(--secondary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--secondary-color); margin-bottom: 0.2rem;">₹<%= stats.avgPackage %> LPA</h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Average Full-Time Package</p>
+    </div>
+  </div>
+
+  <!-- Manual Placement Entry Form Toggle -->
+  <details style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+    <summary style="font-weight: 700; font-size: 1.1rem; color: var(--primary-color); cursor: pointer;">
+      ➕ Add Manual Placement Record (Placement Officer Override)
+    </summary>
+    <form action="/admin/placements/manual" method="POST" style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 1rem;">
+      <div style="flex: 1; min-width: 200px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Select Student</label>
+        <select name="studentId" required style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">Select Student...</option>
+          <% students.forEach(s => { %>
+            <option value="<%= s._id %>"><%= s.name %> (<%= s.email %>)</option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div style="flex: 1; min-width: 200px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Select Company</label>
+        <select name="companyId" required style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">Select Company...</option>
+          <% companies.forEach(c => { %>
+            <option value="<%= c._id %>"><%= c.companyName %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div style="flex: 1; min-width: 200px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Select Drive</label>
+        <select name="driveId" required style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">Select Drive...</option>
+          <% drives.forEach(d => { %>
+            <option value="<%= d._id %>"><%= d.title %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div style="width: 150px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Job Role</label>
+        <input type="text" name="role" required placeholder="e.g. SDE-1" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+      </div>
+
+      <div style="width: 130px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Package / Stipend</label>
+        <input type="number" step="0.1" name="packageVal" required placeholder="LPA or Stipend" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+      </div>
+
+      <div style="width: 150px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Placement Type</label>
+        <select name="placementType" style="width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="full-time">Full-Time</option>
+          <option value="internship">Internship</option>
+          <option value="internship-to-full-time">PPO (Intern ➔ FT)</option>
+        </select>
+      </div>
+
+      <div style="width: 100%; margin-top: 0.5rem;">
+        <button type="submit" style="background: var(--primary-color); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 4px; font-weight: 600; cursor: pointer;">Record Placement</button>
+      </div>
+    </form>
+  </details>
+
+  <!-- Placement Records Table -->
+  <div style="background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="background: var(--bg-card); border-bottom: 2px solid var(--border-color);">
+          <th style="padding: 1rem;">Placed Student</th>
+          <th style="padding: 1rem;">Company</th>
+          <th style="padding: 1rem;">Role</th>
+          <th style="padding: 1rem;">Package / Compensation</th>
+          <th style="padding: 1rem;">Type</th>
+          <th style="padding: 1rem;">Selection Date</th>
+          <th style="padding: 1rem;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (placements.length === 0) { %>
+          <tr>
+            <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">No student placement records recorded yet.</td>
+          </tr>
+        <% } else { %>
+          <% placements.forEach(record => { %>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 1rem;">
+                <div style="font-weight: 700; color: var(--secondary-color);"><%= record.student ? record.student.name : 'Unknown' %></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);"><%= record.student ? record.student.email : '' %></div>
+              </td>
+              <td style="padding: 1rem; font-weight: 700;">
+                <%= record.company ? record.company.companyName : 'N/A' %>
+              </td>
+              <td style="padding: 1rem;">
+                <%= record.role %>
+              </td>
+              <td style="padding: 1rem; font-weight: 700; color: #16a34a;">
+                <% if (record.placementType === 'internship') { %>
+                  ₹<%= record.package %>/mo
+                <% } else { %>
+                  ₹<%= record.package %> LPA
+                <% } %>
+              </td>
+              <td style="padding: 1rem;">
+                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: #e0e7ff; color: #3730a3;">
+                  <%= record.placementType %>
+                </span>
+              </td>
+              <td style="padding: 1rem; font-size: 0.85rem;">
+                <%= new Date(record.selectedAt).toLocaleDateString() %>
+              </td>
+              <td style="padding: 1rem;">
+                <span style="font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px; background: #dcfce7; color: #166534; text-transform: uppercase;">
+                  <%= record.status %>
+                </span>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

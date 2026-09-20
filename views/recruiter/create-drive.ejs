@@ -1,0 +1,132 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="max-width: 720px; margin: 1.5rem auto; background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <h2 style="margin-bottom: 0.5rem; color: var(--secondary-color);">Post Placement / Internship Drive</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Create a new opportunity for graduating students</p>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <ul style="margin-left: 1.2rem;">
+          <% errors.forEach(err => { %>
+            <li><%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/drives/create" method="POST">
+      <% if (user.role === 'admin') { %>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Select Recruiting Company *</label>
+          <select name="company" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+            <% companies.forEach(c => { %>
+              <option value="<%= c._id %>"><%= c.name %></option>
+            <% }); %>
+          </select>
+        </div>
+      <% } else { %>
+        <input type="hidden" name="company" value="<%= companyId %>">
+      <% } %>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Drive Title *</label>
+          <input type="text" name="title" value="<%= typeof formData !== 'undefined' && formData.title ? formData.title : '' %>" required placeholder="e.g. Software Engineer 2026 Batch" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Job / Internship Role *</label>
+          <input type="text" name="role" value="<%= typeof formData !== 'undefined' && formData.role ? formData.role : '' %>" required placeholder="e.g. Full-Stack Developer" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Drive Type *</label>
+          <select name="driveType" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+            <option value="placement" <%= typeof formData !== 'undefined' && formData.driveType === 'placement' ? 'selected' : '' %>>Placement (Full-Time)</option>
+            <option value="internship" <%= typeof formData !== 'undefined' && formData.driveType === 'internship' ? 'selected' : '' %>>Internship</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Work Mode *</label>
+          <select name="workMode" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+            <option value="on-site">On-Site</option>
+            <option value="hybrid">Hybrid</option>
+            <option value="remote">Remote</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Location</label>
+          <input type="text" name="location" value="<%= typeof formData !== 'undefined' && formData.location ? formData.location : 'Bangalore / Remote' %>" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Package (CTC in LPA)</label>
+          <input type="number" step="0.1" name="package" value="<%= typeof formData !== 'undefined' && formData.package ? formData.package : '12.0' %>" placeholder="12.0" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Stipend (Monthly in ₹)</label>
+          <input type="number" name="stipend" value="<%= typeof formData !== 'undefined' && formData.stipend ? formData.stipend : '35000' %>" placeholder="35000" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Minimum CGPA *</label>
+          <input type="number" step="0.01" name="minimumCGPA" value="<%= typeof formData !== 'undefined' && formData.minimumCGPA ? formData.minimumCGPA : '7.0' %>" required min="0" max="10" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Eligible Branches (Comma separated) *</label>
+        <input type="text" name="eligibleBranches" value="<%= typeof formData !== 'undefined' && formData.eligibleBranches ? formData.eligibleBranches : 'CSE, IT, ECE' %>" required placeholder="CSE, IT, ECE" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Required Skills (Comma separated)</label>
+          <input type="text" name="requiredSkills" value="<%= typeof formData !== 'undefined' && formData.requiredSkills ? formData.requiredSkills : 'JavaScript, Python, Data Structures' %>" placeholder="JavaScript, React, Node.js" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Graduation Years *</label>
+          <input type="text" name="graduationYears" value="<%= typeof formData !== 'undefined' && formData.graduationYears ? formData.graduationYears : '2026' %>" required placeholder="2026" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Last Application Date *</label>
+          <input type="date" name="lastDate" value="<%= typeof formData !== 'undefined' && formData.lastDate ? formData.lastDate : '2026-10-30' %>" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Drive Date</label>
+          <input type="date" name="driveDate" value="<%= typeof formData !== 'undefined' && formData.driveDate ? formData.driveDate : '2026-11-05' %>" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Total Openings</label>
+          <input type="number" name="totalOpenings" value="<%= typeof formData !== 'undefined' && formData.totalOpenings ? formData.totalOpenings : '10' %>" min="1" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Description & Selection Process *</label>
+        <textarea name="description" rows="5" required placeholder="Detailed job description, responsibilities, interview rounds, etc..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit;"><%= typeof formData !== 'undefined' && formData.description ? formData.description : '' %></textarea>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Initial Status *</label>
+        <select name="status" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff;">
+          <option value="draft">Save as Draft</option>
+          <option value="published">Publish Opportunity Immediately</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="/drives/recruiter/manage" style="padding: 0.75rem 1.5rem; background: #e2e8f0; color: var(--text-main); border-radius: 6px; text-decoration: none; font-weight: 600;">Cancel</a>
+        <button type="submit" style="padding: 0.75rem 1.5rem; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Submit Drive Opportunity</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

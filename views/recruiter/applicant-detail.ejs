@@ -1,0 +1,124 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="margin-bottom: 1rem;">
+    <a href="/recruiter/drives/<%= drive._id %>/applicants" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">&larr; Back to Drive Applicants List</a>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= success %>
+    </div>
+  <% } %>
+
+  <% if (typeof query !== 'undefined' && query.error) { %>
+    <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= query.error %>
+    </div>
+  <% } %>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Candidate Info Card -->
+    <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+        <div>
+          <span style="font-weight: 700; color: var(--primary-color); font-size: 0.9rem;">APPLICANT PROFILE</span>
+          <h1 style="font-size: 2rem; color: var(--secondary-color); margin-top: 0.2rem;"><%= application.student ? application.student.name : 'Candidate' %></h1>
+          <p style="color: var(--text-muted);"><%= application.student ? application.student.email : '' %></p>
+        </div>
+        <div>
+          <% if (application.status === 'applied') { %>
+            <span style="background: #dbeafe; color: #1e40af; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Applied</span>
+          <% } else if (application.status === 'shortlisted') { %>
+            <span style="background: #fef3c7; color: #b45309; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Shortlisted</span>
+          <% } else if (application.status === 'interviewed') { %>
+            <span style="background: #e0e7ff; color: #3730a3; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Interviewed</span>
+          <% } else if (application.status === 'selected') { %>
+            <span style="background: #dcfce7; color: #15803d; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Selected 🎉</span>
+          <% } else if (application.status === 'rejected') { %>
+            <span style="background: #fee2e2; color: #dc2626; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Rejected</span>
+          <% } else { %>
+            <span style="background: #f1f5f9; color: #64748b; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Withdrawn</span>
+          <% } %>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <div>
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">COLLEGE ROLL ID</label>
+          <span style="font-weight: 600;"><%= studentProfile ? studentProfile.collegeId : 'N/A' %></span>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">BRANCH & COURSE</label>
+          <span style="font-weight: 600;"><%= studentProfile ? `${studentProfile.course} (${studentProfile.branch})` : 'N/A' %></span>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">CGPA SCORE</label>
+          <span style="font-weight: 700; color: var(--primary-color);"><%= studentProfile && studentProfile.cgpa !== undefined ? studentProfile.cgpa.toFixed(2) : '0.00' %> / 10.0</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4 style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 0.4rem;">Technical Skills</h4>
+        <% if (studentProfile && studentProfile.skills && studentProfile.skills.length > 0) { %>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <% studentProfile.skills.forEach(s => { %>
+              <span style="background: #dbeafe; color: var(--primary-color); padding: 0.3rem 0.75rem; border-radius: 9999px; font-weight: 600; font-size: 0.85rem;"><%= s %></span>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">No skills listed.</p>
+        <% } %>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4 style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 0.4rem;">Resume Document</h4>
+        <% if (studentProfile && studentProfile.resumeLink) { %>
+          <a href="<%= studentProfile.resumeLink %>" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-color); color: #fff; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+            📄 View Applicant Resume &nearr;
+          </a>
+        <% } else { %>
+          <span style="color: #dc2626; font-size: 0.9rem;">No resume link provided.</span>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Right Column: Screening Pipeline & Status Actions Form -->
+    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content;">
+      <h3 style="font-size: 1.1rem; color: var(--secondary-color); margin-bottom: 1rem;">Candidate Pipeline Action</h3>
+
+      <form action="/recruiter/applications/<%= application._id %>/status" method="POST">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem;">Update Application Status *</label>
+          <select name="status" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 0.9rem;">
+            <option value="applied" <%= application.status === 'applied' ? 'selected' : '' %>>1. Applied (Under Review)</option>
+            <option value="shortlisted" <%= application.status === 'shortlisted' ? 'selected' : '' %>>2. Shortlist Candidate</option>
+            <option value="interviewed" <%= application.status === 'interviewed' ? 'selected' : '' %>>3. Mark Interviewed</option>
+            <option value="selected" <%= application.status === 'selected' ? 'selected' : '' %>>4. Select & Offer Candidate 🎉</option>
+            <option value="rejected" <%= application.status === 'rejected' ? 'selected' : '' %>>Reject Application</option>
+          </select>
+          <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.3rem;">Pipeline order: Applied ➔ Shortlisted ➔ Interviewed ➔ Selected</small>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem;">Screening Notes</label>
+          <textarea name="screeningNotes" rows="3" placeholder="Recruiter notes regarding candidate background or test score..." style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 0.88rem;"><%= application.screeningNotes || '' %></textarea>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem;">Interview Schedule Date</label>
+          <input type="date" name="interviewDate" value="<%= application.interviewDate ? new Date(application.interviewDate).toISOString().split('T')[0] : '' %>" style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.88rem;">
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 0.4rem;">Rejection Reason (if applicable)</label>
+          <input type="text" name="rejectionReason" value="<%= application.rejectionReason || '' %>" placeholder="e.g. Technical assessment score below threshold" style="width: 100%; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.88rem;">
+        </div>
+
+        <button type="submit" style="width: 100%; background: var(--primary-color); color: #fff; border: none; padding: 0.8rem; font-size: 0.95rem; font-weight: 600; border-radius: 6px; cursor: pointer;">Update Candidate Status</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

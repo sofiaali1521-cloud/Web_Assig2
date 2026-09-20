@@ -1,0 +1,346 @@
+<%- include('../partials/header') %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">TPO Admin Master Dashboard</h1>
+      <p style="color: var(--text-muted);">Real-time placement performance analytics, company drives, recruiter verifications, and student placement metrics.</p>
+    </div>
+
+    <!-- Modern Segmented Pill Quick Navigation Bar -->
+    <div class="nav-pill-container">
+      <a href="/admin/recruiters" class="nav-pill-btn active">
+        👔 Manage Recruiters
+      </a>
+      <a href="/admin/drives" class="nav-pill-btn">
+        📢 Drive Oversight
+      </a>
+      <a href="/admin/applications" class="nav-pill-btn">
+        📑 Applications Audit
+      </a>
+      <a href="/admin/placements" class="nav-pill-btn">
+        🎓 Placement Records
+      </a>
+    </div>
+  </div>
+
+  <!-- Master System Analytics Counter Cards Grid -->
+  <div class="features-grid" style="margin-bottom: 2.5rem;">
+    <div class="feature-card" style="border-left: 4px solid var(--primary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--primary-color); margin-bottom: 0.2rem;"><%= stats.totalStudents %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Students</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size: 2.2rem; color: #10b981; margin-bottom: 0.2rem;"><%= stats.placedStudentsCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Placed Students</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #6b7280;">
+      <h3 style="font-size: 2.2rem; color: var(--text-muted); margin-bottom: 0.2rem;"><%= stats.unplacedStudentsCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Unplaced Students</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size: 2.2rem; color: #d97706; margin-bottom: 0.2rem;"><%= stats.pendingRecruiters %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Pending Recruiter Verifications</p>
+      <a href="/admin/recruiters?status=pending" style="font-size: 0.85rem; color: #d97706; font-weight: 700;">Review Pending &rarr;</a>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #16a34a;">
+      <h3 style="font-size: 2.2rem; color: #16a34a; margin-bottom: 0.2rem;"><%= stats.verifiedRecruiters %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Verified Recruiters</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid var(--secondary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--secondary-color); margin-bottom: 0.2rem;"><%= stats.totalCompanies %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Registered Companies</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size: 2.2rem; color: #2563eb; margin-bottom: 0.2rem;"><%= stats.totalDrives %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Drives (<%= stats.activeDrives %> Active)</p>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Placement: <%= stats.placementDrives %> | Internship: <%= stats.internshipDrives %></div>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #7c3aed;">
+      <h3 style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.2rem;"><%= stats.totalApplications %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Applications</p>
+    </div>
+  </div>
+
+  <!-- Interactive Analytics Charts Section Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+    <h3 style="font-size: 1.4rem; color: var(--secondary-color); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+      📊 Placement Analytics & Visual Charts
+    </h3>
+    <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600; background: var(--bg-card); padding: 0.3rem 0.7rem; border-radius: 20px; border: 1px solid var(--border-color);">
+      Real-Time MongoDB Aggregations
+    </span>
+  </div>
+
+  <!-- Visual Charts Grid (Enhanced Aesthetics & Glassmorphism Cards) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    
+    <!-- Chart 1: Branch-Wise Placement Distribution -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h4 class="chart-card-title">
+          🎓 Branch-Wise Placement Count
+        </h4>
+        <span style="font-size: 0.75rem; color: var(--primary-color); font-weight: 700; background: rgba(99, 102, 241, 0.1); padding: 0.2rem 0.6rem; border-radius: 12px;">
+          By Department
+        </span>
+      </div>
+      <div class="chart-canvas-wrapper">
+        <canvas id="branchChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Company-Wise Selections -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h4 class="chart-card-title">
+          🏢 Company-Wise Selections
+        </h4>
+        <span style="font-size: 0.75rem; color: #10b981; font-weight: 700; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.6rem; border-radius: 12px;">
+          Corporate Hiring
+        </span>
+      </div>
+      <div class="chart-canvas-wrapper">
+        <canvas id="companyChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 3: Application Status Distribution -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h4 class="chart-card-title">
+          📑 Application Status Breakdown
+        </h4>
+        <span style="font-size: 0.75rem; color: #8b5cf6; font-weight: 700; background: rgba(139, 92, 246, 0.1); padding: 0.2rem 0.6rem; border-radius: 12px;">
+          Pipeline Overview
+        </span>
+      </div>
+      <div class="chart-canvas-wrapper">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 4: Placement vs Unplaced Ratio -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <h4 class="chart-card-title">
+          🎯 Placement Success Ratio
+        </h4>
+        <span style="font-size: 0.75rem; color: #0284c7; font-weight: 700; background: rgba(2, 132, 199, 0.1); padding: 0.2rem 0.6rem; border-radius: 12px;">
+          Placed vs Unplaced
+        </span>
+      </div>
+      <div class="chart-canvas-wrapper">
+        <canvas id="ratioChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drive-Wise Application Count Summary Table -->
+  <div style="background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 2.5rem; box-shadow: var(--shadow-sm);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.6rem;">
+      <h3 style="font-size: 1.2rem; color: var(--secondary-color); margin: 0;">🔥 Top Campus Drives by Application Volume</h3>
+      <a href="/admin/drives" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">View All Drives &rarr;</a>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+            <th style="padding: 0.75rem;">Drive Title</th>
+            <th style="padding: 0.75rem;">Drive Type</th>
+            <th style="padding: 0.75rem; text-align: right;">Total Applications Received</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (aggregations.driveApplications.length === 0) { %>
+            <tr>
+              <td colspan="3" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">No drive application records available yet.</td>
+            </tr>
+          <% } else { %>
+            <% aggregations.driveApplications.forEach(drive => { %>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.75rem; font-weight: 700; color: var(--secondary-color);">
+                  <%= drive._id || 'General Drive' %>
+                </td>
+                <td style="padding: 0.75rem;">
+                  <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(79, 70, 229, 0.1); color: var(--primary-color);">
+                    <%= drive.driveType || 'Placement' %>
+                  </span>
+                </td>
+                <td style="padding: 0.75rem; text-align: right; font-weight: 800; color: var(--primary-color); font-size: 1.1rem;">
+                  <%= drive.count %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- High-Aesthetic Chart Initialization Script with Gradient Fills & Custom Styling -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDarkMode ? '#cbd5e1' : '#475569';
+    const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+
+    // Global Chart.js Font Configuration
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = textColor;
+
+    // Helper for creating linear gradients
+    function createGradient(ctx, colorStart, colorEnd) {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+      gradient.addColorStop(0, colorStart);
+      gradient.addColorStop(1, colorEnd);
+      return gradient;
+    }
+
+    // 1. Branch Chart (Indigo -> Purple Gradient Bar)
+    const branchCtx = document.getElementById('branchChart').getContext('2d');
+    const branchGradient = createGradient(branchCtx, 'rgba(99, 102, 241, 0.9)', 'rgba(168, 85, 247, 0.65)');
+    const branchData = <%- JSON.stringify(aggregations.branchPlacements) %>;
+    const branchLabels = branchData.map(b => b._id || 'Other');
+    const branchCounts = branchData.map(b => b.count);
+
+    new Chart(branchCtx, {
+      type: 'bar',
+      data: {
+        labels: branchLabels.length > 0 ? branchLabels : ['CSE', 'IT', 'ECE', 'EEE', 'Mechanical'],
+        datasets: [{
+          label: 'Placed Students',
+          data: branchCounts.length > 0 ? branchCounts : [0, 0, 0, 0, 0],
+          backgroundColor: branchGradient,
+          borderColor: '#6366f1',
+          borderWidth: 1,
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { padding: 10, cornerRadius: 8 }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: textColor, font: { weight: '600' } } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 }, beginAtZero: true }
+        }
+      }
+    });
+
+    // 2. Company Chart (Emerald -> Teal Gradient Bar)
+    const companyCtx = document.getElementById('companyChart').getContext('2d');
+    const companyGradient = createGradient(companyCtx, 'rgba(16, 185, 129, 0.9)', 'rgba(20, 184, 166, 0.65)');
+    const companyData = <%- JSON.stringify(aggregations.companyPlacements) %>;
+    const companyLabels = companyData.map(c => c._id || 'Company');
+    const companyCounts = companyData.map(c => c.count);
+
+    new Chart(companyCtx, {
+      type: 'bar',
+      data: {
+        labels: companyLabels.length > 0 ? companyLabels : ['No Selections Yet'],
+        datasets: [{
+          label: 'Student Hires',
+          data: companyCounts.length > 0 ? companyCounts : [0],
+          backgroundColor: companyGradient,
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { padding: 10, cornerRadius: 8 }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: textColor, font: { weight: '600' } } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 }, beginAtZero: true }
+        }
+      }
+    });
+
+    // 3. Application Status Distribution Chart Data
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusData = <%- JSON.stringify(aggregations.applicationStatus) %>;
+    const statusLabels = statusData.map(s => s._id ? s._id.toUpperCase() : 'UNKNOWN');
+    const statusCounts = statusData.map(s => s.count);
+
+    new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: statusLabels.length > 0 ? statusLabels : ['No Applications'],
+        datasets: [{
+          data: statusCounts.length > 0 ? statusCounts : [1],
+          backgroundColor: [
+            '#6366f1', // Applied (Indigo)
+            '#f59e0b', // Shortlisted (Amber)
+            '#8b5cf6', // Interviewed (Purple)
+            '#10b981', // Selected (Emerald)
+            '#ef4444', // Rejected (Rose)
+            '#64748b'  // Withdrawn (Slate)
+          ],
+          borderWidth: 2,
+          borderColor: isDarkMode ? '#1e293b' : '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { font: { size: 11, weight: '600' }, boxWidth: 12, padding: 12 }
+          }
+        }
+      }
+    });
+
+    // 4. Placement vs Unplaced Ratio Chart Data
+    const ratioCtx = document.getElementById('ratioChart').getContext('2d');
+    new Chart(ratioCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Placed Students', 'Unplaced Students'],
+        datasets: [{
+          data: [<%= stats.placedStudentsCount %>, <%= stats.unplacedStudentsCount %>],
+          backgroundColor: ['#10b981', '#64748b'],
+          borderWidth: 2,
+          borderColor: isDarkMode ? '#1e293b' : '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { font: { size: 12, weight: '600' }, boxWidth: 12, padding: 14 }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

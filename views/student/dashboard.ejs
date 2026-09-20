@@ -1,0 +1,206 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <!-- Welcome & Header Section -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2.2rem; color: var(--secondary-color);">Welcome back, <%= user.name %> 👋</h1>
+      <p style="color: var(--text-muted);">Track your placement drives, applications, upcoming interviews, and career profile status.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <a href="/drives" style="background: var(--primary-color); color: #fff; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">🎯 Browse Drives</a>
+      <a href="/student/profile/edit" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.65rem 1.1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">✏️ Edit Profile</a>
+    </div>
+  </div>
+
+  <!-- Profile Incomplete Alert Banner -->
+  <% if (stats.completion < 100) { %>
+    <div style="background: #fffbeb; border-left: 5px solid #f59e0b; padding: 1.25rem; border-radius: 8px; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <strong style="color: #92400e; font-size: 1.05rem; display: block; margin-bottom: 0.2rem;">⚠️ Profile Incomplete (<%= stats.completion %>%)</strong>
+        <span style="color: #b45309; font-size: 0.9rem;">Complete your profile before applying to drives to pass automated eligibility checks.</span>
+      </div>
+      <a href="/student/profile/edit" style="background: #f59e0b; color: white; padding: 0.5rem 1.1rem; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.85rem;">Complete Profile &rarr;</a>
+    </div>
+  <% } %>
+
+  <!-- Placement Status Card -->
+  <div style="background: <%= placementStatus.includes('Selected') ? 'linear-gradient(135deg, #10b981, #059669)' : placementStatus.includes('progress') ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'var(--bg-card)' %>; 
+              color: <%= placementStatus.includes('Not') ? 'var(--text-color)' : '#ffffff' %>; 
+              padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; font-weight: 700; opacity: 0.9; display: block; margin-bottom: 0.3rem;">Current Placement Status</span>
+        <h2 style="font-size: 1.8rem; margin: 0; font-weight: 800;">
+          <%= placementStatus %>
+        </h2>
+        <% if (placementDetails) { %>
+          <div style="margin-top: 0.6rem; font-size: 1rem; font-weight: 600;">
+            🏢 <%= placementDetails.companyName %> &nbsp;|&nbsp; 💼 <%= placementDetails.role %> &nbsp;|&nbsp; 💰 ₹<%= placementDetails.package %> LPA
+          </div>
+        <% } else if (placementStatus === 'Application in progress') { %>
+          <div style="margin-top: 0.4rem; font-size: 0.9rem; opacity: 0.95;">
+            You have <%= stats.activeApplications %> active application(s) undergoing screening/interviews.
+          </div>
+        <% } else { %>
+          <div style="margin-top: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">
+            No active placement selection yet. Explore available opportunities to launch your career.
+          </div>
+        <% } %>
+      </div>
+      <div>
+        <a href="/student/applications" style="background: <%= placementStatus.includes('Not') ? 'var(--primary-color)' : '#ffffff' %>; color: <%= placementStatus.includes('Not') ? '#ffffff' : '#059669' %>; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.9rem;">
+          View Placement Status &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Metrics Counter Grid -->
+  <div class="features-grid" style="margin-bottom: 2.5rem;">
+    <div class="feature-card" style="border-left: 4px solid var(--primary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--primary-color); margin-bottom: 0.2rem;"><%= stats.completion %>%</h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Profile Completion</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid var(--secondary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--secondary-color); margin-bottom: 0.2rem;"><%= stats.totalApplications %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Applications</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #3b82f6;">
+      <h3 style="font-size: 2.2rem; color: #2563eb; margin-bottom: 0.2rem;"><%= stats.activeApplications %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Active Applications</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size: 2.2rem; color: #d97706; margin-bottom: 0.2rem;"><%= stats.shortlistedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Shortlisted</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #7c3aed;">
+      <h3 style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.2rem;"><%= stats.interviewedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Interviewed</p>
+    </div>
+
+    <div class="feature-card" style="border-left: 4px solid #10b981;">
+      <h3 style="font-size: 2.2rem; color: #10b981; margin-bottom: 0.2rem;"><%= stats.selectedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Selections</p>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- Recent Applications Table -->
+    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.6rem;">
+        <h3 style="font-size: 1.2rem; color: var(--secondary-color); margin: 0;">📋 Recent Applications</h3>
+        <a href="/student/applications" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">View All &rarr;</a>
+      </div>
+
+      <% if (recentApplications.length === 0) { %>
+        <div style="padding: 2.5rem 1rem; text-align: center;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📁</div>
+          <h4 style="font-size: 1.1rem; color: var(--secondary-color); margin-bottom: 0.3rem;">No applications yet.</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">Browse available drives and apply to suitable opportunities.</p>
+          <a href="/drives" style="background: var(--primary-color); color: white; padding: 0.55rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem;">Browse Available Drives</a>
+        </div>
+      <% } else { %>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+                <th style="padding: 0.6rem 0.5rem;">Company / Role</th>
+                <th style="padding: 0.6rem 0.5rem;">Type</th>
+                <th style="padding: 0.6rem 0.5rem;">Applied Date</th>
+                <th style="padding: 0.6rem 0.5rem;">Status</th>
+                <th style="padding: 0.6rem 0.5rem; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentApplications.forEach(app => { %>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 0.75rem 0.5rem;">
+                    <div style="font-weight: 700; color: var(--secondary-color);"><%= app.drive && app.drive.company ? app.drive.company.name || company.companyName : 'N/A' %></div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);"><%= app.drive ? app.drive.role : '' %></div>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem;">
+                    <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; padding: 0.2rem 0.4rem; border-radius: 4px; background: #e0e7ff; color: #3730a3;">
+                      <%= app.drive ? app.drive.driveType : '' %>
+                    </span>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem; font-size: 0.85rem;">
+                    <%= new Date(app.appliedAt).toLocaleDateString() %>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem;">
+                    <span style="font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 12px; text-transform: uppercase;
+                      background: <%= app.status === 'selected' ? '#dcfce7' : app.status === 'rejected' ? '#fee2e2' : app.status === 'interviewed' ? '#e0e7ff' : app.status === 'shortlisted' ? '#fef3c7' : '#f3f4f6' %>;
+                      color: <%= app.status === 'selected' ? '#166534' : app.status === 'rejected' ? '#991b1b' : app.status === 'interviewed' ? '#3730a3' : app.status === 'shortlisted' ? '#92400e' : '#374151' %>;">
+                      <%= app.status %>
+                    </span>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: right;">
+                    <a href="/student/applications" style="font-size: 0.8rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">Track &rarr;</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Upcoming Interviews Column -->
+    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.6rem; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.2rem; color: var(--secondary-color); margin: 0;">📅 Upcoming Interviews</h3>
+      </div>
+
+      <% if (upcomingInterviews.length === 0) { %>
+        <div style="padding: 2rem 0.5rem; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2rem; margin-bottom: 0.4rem;">☕</div>
+          <p style="font-size: 0.9rem; margin: 0;">No upcoming interviews scheduled right now.</p>
+        </div>
+      <% } else { %>
+        <div style="display: flex; flex-col; gap: 1rem;">
+          <% upcomingInterviews.forEach(interview => { %>
+            <div style="background: #f8fafc; border-left: 4px solid #7c3aed; padding: 0.9rem; border-radius: 6px; margin-bottom: 0.75rem;">
+              <strong style="color: var(--secondary-color); display: block; font-size: 0.95rem;">
+                <%= interview.drive && interview.drive.company ? (interview.drive.company.name || interview.drive.company.companyName) : 'Recruiting Company' %>
+              </strong>
+              <div style="font-size: 0.85rem; color: var(--text-muted);"><%= interview.drive ? interview.drive.role : '' %></div>
+              <div style="font-size: 0.85rem; color: #7c3aed; font-weight: 700; margin-top: 0.3rem;">
+                📆 <%= interview.interviewDate ? new Date(interview.interviewDate).toLocaleDateString() : 'Scheduled Soon' %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <h3 style="font-size: 1.3rem; color: var(--secondary-color); margin-bottom: 1rem;">⚡ Quick Action Controls</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+    <a href="/student/profile/edit" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block; transition: transform 0.2s;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">📝 Complete Profile</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Update your branch, CGPA, skills & resume link.</p>
+    </a>
+
+    <a href="/drives" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">🔎 Browse Drives</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Filter and discover placement & internship drives.</p>
+    </a>
+
+    <a href="/student/applications" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">📑 My Applications</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Track recruitment pipeline statuses & feedback.</p>
+    </a>
+
+    <a href="/student/applications" style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">🎓 View Placement Status</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Check official selection record & offer letters.</p>
+    </a>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

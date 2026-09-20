@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Campus Placement Management System' %></title>
+  <script>
+    (function() {
+      const storedTheme = localStorage.getItem('placement_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', storedTheme);
+    })();
+  </script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js" defer></script>
+</head>
+<body>
+  <!-- Top Application Header -->
+  <header class="app-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <% if (typeof user !== 'undefined' && user) { %>
+        <button class="mobile-toggle-btn" id="mobile-menu-btn" onclick="toggleMobileSidebar()" type="button" aria-label="Toggle Navigation Menu">
+          ☰ Menu
+        </button>
+      <% } %>
+      <a href="/" class="brand-title">
+        🎓 Campus Placement System
+        <% if (typeof user !== 'undefined' && user) { %>
+          <span class="brand-badge"><%= user.role === 'admin' ? 'TPO Admin' : user.role === 'recruiter' ? 'Recruiter' : 'Student' %></span>
+        <% } %>
+      </a>
+    </div>
+
+    <div class="header-controls">
+      <button onclick="toggleAppTheme()" class="theme-toggle-btn" type="button" aria-label="Toggle Dark/Light Theme Mode">
+        <span id="theme-toggle-icon">🌙</span>
+        <span id="theme-toggle-text">Theme</span>
+      </button>
+
+      <% if (typeof user !== 'undefined' && user) { %>
+        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem;">
+          <a href="<%= user.role === 'student' ? '/student/profile' : user.role === 'recruiter' ? '/recruiter/profile' : '/admin/dashboard' %>" 
+             class="header-username" 
+             style="font-weight: 600; color: var(--secondary-color); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;"
+             title="View My Profile">
+            👤 <%= user.name %>
+          </a>
+          <a href="/auth/logout" class="btn btn-danger btn-sm" style="font-weight: 600;">Logout</a>
+        </div>
+      <% } else { %>
+        <div style="display: flex; gap: 0.5rem;">
+          <a href="/auth/login" class="btn btn-secondary btn-sm">Sign In</a>
+          <a href="/auth/register" class="btn btn-primary btn-sm">Register</a>
+        </div>
+      <% } %>
+    </div>
+  </header>
+
+  <div class="app-wrapper">
+    <% if (typeof user !== 'undefined' && user) { %>
+      <!-- Role-Based Sidebar Navigation Shell -->
+      <aside class="app-sidebar" id="appSidebar">
+        <% if (user.role === 'student') { %>
+          <div class="sidebar-heading">Student Portal</div>
+          <a href="/student/dashboard" class="sidebar-link">📊 Dashboard</a>
+          <a href="/student/profile" class="sidebar-link">👤 My Profile</a>
+          <a href="/student/profile/edit" class="sidebar-link">✏️ Edit Profile</a>
+          <a href="/drives" class="sidebar-link">🔎 Browse Drives</a>
+          <a href="/student/applications" class="sidebar-link">📑 My Applications</a>
+          <a href="/student/placements" class="sidebar-link">🎓 Placement Status</a>
+        <% } else if (user.role === 'recruiter') { %>
+          <div class="sidebar-heading">Recruiter Partner</div>
+          <a href="/recruiter/dashboard" class="sidebar-link">📊 Dashboard</a>
+          <a href="/recruiter/profile" class="sidebar-link">🏢 Company Profile</a>
+          <a href="/recruiter/profile/edit" class="sidebar-link">✏️ Edit Profile</a>
+          <a href="/drives/recruiter/manage" class="sidebar-link">📢 My Drives</a>
+          <a href="/drives/create" class="sidebar-link">➕ Post Drive</a>
+        <% } else if (user.role === 'admin') { %>
+          <div class="sidebar-heading">TPO Control Panel</div>
+          <a href="/admin/dashboard" class="sidebar-link">📊 Dashboard</a>
+          <a href="/admin/recruiters" class="sidebar-link">👔 Recruiters</a>
+          <a href="/admin/drives" class="sidebar-link">📢 Drive Oversight</a>
+          <a href="/admin/applications" class="sidebar-link">📑 Global Applications</a>
+          <a href="/admin/placements" class="sidebar-link">🎓 Placement Records</a>
+        <% } %>
+      </aside>
+    <% } %>
+
+    <div class="main-content">

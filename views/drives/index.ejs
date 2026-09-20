@@ -1,0 +1,177 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Available Placement & Internship Drives</h1>
+      <p style="color: var(--text-muted);">Browse, filter, and discover active career drives for your branch and CGPA</p>
+    </div>
+    <% if (user && (user.role === 'recruiter' || user.role === 'admin')) { %>
+      <div>
+        <a href="/drives/create" style="background: var(--primary-color); color: #fff; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">+ Post New Drive</a>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Multi-Criteria Backend Search, Filter & Sort Form -->
+  <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+    <form action="/drives" method="GET">
+      <div style="margin-bottom: 1rem;">
+        <input type="text" name="search" value="<%= searchQuery %>" placeholder="🔍 Search by company name, role, title, skill (e.g. Node.js, Python), or location..." style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.2rem;">
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">DRIVE TYPE</label>
+          <select name="driveType" style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 0.9rem;">
+            <option value="all" <%= selectedType === 'all' ? 'selected' : '' %>>All Types</option>
+            <option value="placement" <%= selectedType === 'placement' ? 'selected' : '' %>>Placement (Full-Time)</option>
+            <option value="internship" <%= selectedType === 'internship' ? 'selected' : '' %>>Internship</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">BRANCH</label>
+          <select name="branch" style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 0.9rem;">
+            <option value="all" <%= selectedBranch === 'all' ? 'selected' : '' %>>All Branches</option>
+            <option value="CSE" <%= selectedBranch === 'CSE' ? 'selected' : '' %>>CSE</option>
+            <option value="IT" <%= selectedBranch === 'IT' ? 'selected' : '' %>>IT</option>
+            <option value="ECE" <%= selectedBranch === 'ECE' ? 'selected' : '' %>>ECE</option>
+            <option value="EEE" <%= selectedBranch === 'EEE' ? 'selected' : '' %>>EEE</option>
+            <option value="Mechanical" <%= selectedBranch === 'Mechanical' ? 'selected' : '' %>>Mechanical</option>
+            <option value="Civil" <%= selectedBranch === 'Civil' ? 'selected' : '' %>>Civil</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">WORK MODE</label>
+          <select name="workMode" style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 0.9rem;">
+            <option value="all" <%= selectedWorkMode === 'all' ? 'selected' : '' %>>All Modes</option>
+            <option value="on-site" <%= selectedWorkMode === 'on-site' ? 'selected' : '' %>>On-Site</option>
+            <option value="hybrid" <%= selectedWorkMode === 'hybrid' ? 'selected' : '' %>>Hybrid</option>
+            <option value="remote" <%= selectedWorkMode === 'remote' ? 'selected' : '' %>>Remote</option>
+          </select>
+        </div>
+
+        <% if (user && user.role === 'student') { %>
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">ELIGIBILITY FILTER</label>
+            <select name="eligibility" style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 0.9rem;">
+              <option value="all" <%= selectedEligibility === 'all' ? 'selected' : '' %>>All Drives</option>
+              <option value="eligible" <%= selectedEligibility === 'eligible' ? 'selected' : '' %>>Eligible Only</option>
+            </select>
+          </div>
+        <% } %>
+
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem;">SORT BY</label>
+          <select name="sort" style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; font-size: 0.9rem;">
+            <option value="latest" <%= selectedSort === 'latest' ? 'selected' : '' %>>Latest Drives</option>
+            <option value="deadline" <%= selectedSort === 'deadline' ? 'selected' : '' %>>Application Deadline</option>
+            <option value="package" <%= selectedSort === 'package' ? 'selected' : '' %>>Highest Package</option>
+            <option value="stipend" <%= selectedSort === 'stipend' ? 'selected' : '' %>>Highest Stipend</option>
+            <option value="company" <%= selectedSort === 'company' ? 'selected' : '' %>>Company Name (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <a href="/drives" style="padding: 0.6rem 1.2rem; background: #e2e8f0; color: var(--text-main); text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem;">Reset Filters</a>
+        <button type="submit" style="padding: 0.6rem 1.4rem; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">Apply Search & Filters</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Drive Cards Grid -->
+  <% if (drives.length === 0) { %>
+    <div style="background: var(--card-bg); padding: 3rem; text-align: center; border-radius: 10px; border: 1px solid var(--border-color);">
+      <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 1rem;">No active drives match your search and filter criteria.</p>
+      <a href="/drives" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">View All Available Drives &rarr;</a>
+    </div>
+  <% } else { %>
+    <div class="features-grid">
+      <% drives.forEach(d => { %>
+        <div class="feature-card" style="display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+          <div>
+            <!-- Header: Company & Badges -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <div style="width: 36px; height: 36px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--secondary-color); font-size: 1rem;">
+                  <%= d.company && d.company.name ? d.company.name.charAt(0).toUpperCase() : 'C' %>
+                </div>
+                <div>
+                  <span style="font-weight: 700; color: var(--primary-color); font-size: 0.95rem;"><%= d.company ? d.company.name : 'Company' %></span>
+                </div>
+              </div>
+
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;">
+                <% if (d.driveType === 'placement') { %>
+                  <span style="background: #dcfce7; color: #166534; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase;">Placement</span>
+                <% } else { %>
+                  <span style="background: #e0e7ff; color: #3730a3; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase;">Internship</span>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Title & Role -->
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem; color: var(--secondary-color);"><%= d.title %></h3>
+            <p style="font-weight: 600; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.8rem;"><%= d.role %> • <%= d.location %> (<%= d.workMode %>)</p>
+
+            <!-- Student Eligibility Status Indicator -->
+            <% if (user && user.role === 'student' && d.eligibilityInfo) { %>
+              <div style="margin-bottom: 0.8rem;">
+                <% if (d.isExpired) { %>
+                  <span style="display: inline-block; background: #fee2e2; color: #991b1b; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">⚠️ Drive Expired</span>
+                <% } else if (d.eligibilityInfo.isEligible) { %>
+                  <span style="display: inline-block; background: #dcfce7; color: #15803d; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">✅ You are Eligible</span>
+                <% } else { %>
+                  <span style="display: inline-block; background: #fef3c7; color: #b45309; padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 700; font-size: 0.78rem;" title="<%= d.eligibilityInfo.reasons.join(' | ') %>">
+                    ⚠️ Not Eligible (<%= d.eligibilityInfo.reasons[0] %>)
+                  </span>
+                <% } %>
+              </div>
+            <% } %>
+
+            <!-- Metrics Card -->
+            <div style="background: #f8fafc; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 0.8rem; font-size: 0.85rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="color: var(--text-muted);">Compensation:</span>
+                <span style="font-weight: 700; color: #16a34a;"><%= d.driveType === 'placement' ? `₹${d.package} LPA` : `₹${d.stipend}/mo` %></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span style="color: var(--text-muted);">Min CGPA:</span>
+                <span style="font-weight: 600;"><%= d.minimumCGPA %> / 10.0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-muted);">Last Date:</span>
+                <span style="font-weight: 600; color: <%= d.isExpired ? '#dc2626' : 'var(--text-main)' %>;">
+                  <%= new Date(d.lastDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Required Skills Badges -->
+            <% if (d.requiredSkills && d.requiredSkills.length > 0) { %>
+              <div style="margin-bottom: 0.8rem;">
+                <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                  <% d.requiredSkills.slice(0, 4).forEach(s => { %>
+                    <span style="background: #f1f5f9; color: var(--secondary-color); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; border: 1px solid var(--border-color);"><%= s %></span>
+                  <% }); %>
+                  <% if (d.requiredSkills.length > 4) { %>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">+<%= d.requiredSkills.length - 4 %> more</span>
+                  <% } %>
+                </div>
+              </div>
+            <% } %>
+          </div>
+
+          <div style="margin-top: 0.8rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+            <a href="/drives/<%= d._id %>" style="display: block; text-align: center; background: var(--primary-color); color: #fff; padding: 0.6rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.88rem;">View Drive Details &rarr;</a>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

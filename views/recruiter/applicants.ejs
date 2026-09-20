@@ -1,0 +1,104 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="margin-bottom: 1rem;">
+    <a href="/drives/recruiter/manage" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">&larr; Back to My Posted Drives</a>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Drive Applicants: <%= drive.title %></h1>
+      <p style="color: var(--text-muted);"><%= drive.company ? drive.company.name : 'Company' %> • Total Applicants: <strong><%= applicants.length %></strong></p>
+    </div>
+    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+      <a href="/recruiter/drives/<%= drive._id %>/applicants?status=all" style="padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; <%= selectedStatus === 'all' ? 'background: var(--secondary-color); color: #fff;' : 'background: #e2e8f0; color: var(--text-main);' %>">All</a>
+      <a href="/recruiter/drives/<%= drive._id %>/applicants?status=applied" style="padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; <%= selectedStatus === 'applied' ? 'background: #2563eb; color: #fff;' : 'background: #e2e8f0; color: var(--text-main);' %>">Applied</a>
+      <a href="/recruiter/drives/<%= drive._id %>/applicants?status=shortlisted" style="padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; <%= selectedStatus === 'shortlisted' ? 'background: #d97706; color: #fff;' : 'background: #e2e8f0; color: var(--text-main);' %>">Shortlisted</a>
+      <a href="/recruiter/drives/<%= drive._id %>/applicants?status=interviewed" style="padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; <%= selectedStatus === 'interviewed' ? 'background: #4f46e5; color: #fff;' : 'background: #e2e8f0; color: var(--text-main);' %>">Interviewed</a>
+      <a href="/recruiter/drives/<%= drive._id %>/applicants?status=selected" style="padding: 0.45rem 0.85rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem; <%= selectedStatus === 'selected' ? 'background: #16a34a; color: #fff;' : 'background: #e2e8f0; color: var(--text-main);' %>">Selected</a>
+    </div>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= success %>
+    </div>
+  <% } %>
+
+  <!-- Search Filter -->
+  <div style="background: var(--card-bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+    <form action="/recruiter/drives/<%= drive._id %>/applicants" method="GET" style="display: flex; gap: 1rem;">
+      <input type="hidden" name="status" value="<%= selectedStatus %>">
+      <input type="text" name="search" value="<%= searchQuery %>" placeholder="🔍 Search applicant by name, branch, CGPA, or skills..." style="flex: 1; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem;">
+      <button type="submit" style="padding: 0.65rem 1.2rem; background: var(--secondary-color); color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Search</button>
+    </form>
+  </div>
+
+  <!-- Applicants Table -->
+  <div class="table-responsive" style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem;">
+      <thead>
+        <tr style="background: #f1f5f9; color: var(--secondary-color); font-weight: 700; border-bottom: 1px solid var(--border-color);">
+          <th style="padding: 1rem;">Applicant Name</th>
+          <th style="padding: 1rem;">Branch & Course</th>
+          <th style="padding: 1rem;">CGPA</th>
+          <th style="padding: 1rem;">Grad Year</th>
+          <th style="padding: 1rem;">Resume</th>
+          <th style="padding: 1rem;">Status</th>
+          <th style="padding: 1rem; text-align: right;">Pipeline Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (applicants.length === 0) { %>
+          <tr>
+            <td colspan="7" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">No student applicants found matching current filters.</td>
+          </tr>
+        <% } %>
+
+        <% applicants.forEach(a => { %>
+          <tr style="border-bottom: 1px solid var(--border-color);">
+            <td style="padding: 1rem;">
+              <strong style="color: var(--secondary-color); display: block;"><%= a.student ? a.student.name : 'Applicant' %></strong>
+              <small style="color: var(--text-muted);"><%= a.student ? a.student.email : '' %></small>
+            </td>
+            <td style="padding: 1rem;">
+              <strong><%= a.profile ? a.profile.branch : 'CSE' %></strong>
+              <small style="display: block; color: var(--text-muted);"><%= a.profile ? a.profile.course : 'B.Tech' %></small>
+            </td>
+            <td style="padding: 1rem;">
+              <span style="font-weight: 700; color: var(--primary-color);"><%= a.profile && a.profile.cgpa !== undefined ? a.profile.cgpa.toFixed(2) : 'N/A' %></span>
+            </td>
+            <td style="padding: 1rem;"><%= a.profile ? a.profile.graduationYear : '2026' %></td>
+            <td style="padding: 1rem;">
+              <% if (a.profile && a.profile.resumeLink) { %>
+                <a href="<%= a.profile.resumeLink %>" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">📄 Resume &nearr;</a>
+              <% } else { %>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">No Resume</span>
+              <% } %>
+            </td>
+            <td style="padding: 1rem;">
+              <% if (a.status === 'applied') { %>
+                <span style="background: #dbeafe; color: #1e40af; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.78rem;">Applied</span>
+              <% } else if (a.status === 'shortlisted') { %>
+                <span style="background: #fef3c7; color: #b45309; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.78rem;">Shortlisted</span>
+              <% } else if (a.status === 'interviewed') { %>
+                <span style="background: #e0e7ff; color: #3730a3; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.78rem;">Interviewed</span>
+              <% } else if (a.status === 'selected') { %>
+                <span style="background: #dcfce7; color: #15803d; padding: 0.2rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.78rem;">Selected 🎉</span>
+              <% } else if (a.status === 'rejected') { %>
+                <span style="background: #fee2e2; color: #dc2626; padding: 0.25rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.78rem;">Rejected</span>
+              <% } else { %>
+                <span style="background: #f1f5f9; color: #64748b; padding: 0.25rem 0.6rem; border-radius: 9999px; font-weight: 700; font-size: 0.78rem;">Withdrawn</span>
+              <% } %>
+            </td>
+            <td style="padding: 1rem; text-align: right;">
+              <a href="/recruiter/applications/<%= a._id %>" style="background: var(--primary-color); color: #fff; padding: 0.4rem 0.85rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; text-decoration: none;">Review Candidate &rarr;</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

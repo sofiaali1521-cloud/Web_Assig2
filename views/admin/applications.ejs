@@ -1,0 +1,155 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Global Applications Audit & Oversight</h1>
+      <p style="color: var(--text-muted);">Inspect, filter, review suspicious entries, and override application statuses across all drives.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/admin/dashboard" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600;">&larr; Admin Dashboard</a>
+    </div>
+  </div>
+
+  <% if (success) { %>
+    <div class="alert alert-success" style="margin-bottom: 1.5rem;"><%= success %></div>
+  <% } %>
+  <% if (error) { %>
+    <div class="alert alert-danger" style="margin-bottom: 1.5rem;"><%= error %></div>
+  <% } %>
+
+  <!-- Multi-Parameter Filter Card -->
+  <div style="background: var(--bg-card); padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 2rem;">
+    <form action="/admin/applications" method="GET" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+      <div style="flex: 1; min-width: 200px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Search Student / Roll No</label>
+        <input type="text" name="search" value="<%= filters.search %>" placeholder="Name, Email, or Roll No..." style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+      </div>
+
+      <div style="min-width: 150px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Company</label>
+        <select name="company" style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Companies</option>
+          <% companies.forEach(c => { %>
+            <option value="<%= c._id %>" <%= filters.company === c._id.toString() ? 'selected' : '' %>><%= c.companyName %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div style="min-width: 140px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Drive Type</label>
+        <select name="driveType" style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Types</option>
+          <option value="placement" <%= filters.driveType === 'placement' ? 'selected' : '' %>>Placement</option>
+          <option value="internship" <%= filters.driveType === 'internship' ? 'selected' : '' %>>Internship</option>
+        </select>
+      </div>
+
+      <div style="min-width: 130px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Branch</label>
+        <select name="branch" style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Branches</option>
+          <option value="CSE" <%= filters.branch === 'CSE' ? 'selected' : '' %>>CSE</option>
+          <option value="IT" <%= filters.branch === 'IT' ? 'selected' : '' %>>IT</option>
+          <option value="ECE" <%= filters.branch === 'ECE' ? 'selected' : '' %>>ECE</option>
+          <option value="EEE" <%= filters.branch === 'EEE' ? 'selected' : '' %>>EEE</option>
+          <option value="Mechanical" <%= filters.branch === 'Mechanical' ? 'selected' : '' %>>Mechanical</option>
+          <option value="Civil" <%= filters.branch === 'Civil' ? 'selected' : '' %>>Civil</option>
+        </select>
+      </div>
+
+      <div style="min-width: 130px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Status</label>
+        <select name="status" style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <option value="">All Statuses</option>
+          <option value="applied" <%= filters.status === 'applied' ? 'selected' : '' %>>Applied</option>
+          <option value="shortlisted" <%= filters.status === 'shortlisted' ? 'selected' : '' %>>Shortlisted</option>
+          <option value="interviewed" <%= filters.status === 'interviewed' ? 'selected' : '' %>>Interviewed</option>
+          <option value="selected" <%= filters.status === 'selected' ? 'selected' : '' %>>Selected</option>
+          <option value="rejected" <%= filters.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+          <option value="withdrawn" <%= filters.status === 'withdrawn' ? 'selected' : '' %>>Withdrawn</option>
+        </select>
+      </div>
+
+      <div style="width: 90px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Min CGPA</label>
+        <input type="number" step="0.1" name="minCgpa" value="<%= filters.minCgpa %>" placeholder="0.0" style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+      </div>
+
+      <div style="width: 90px;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.3rem;">Max CGPA</label>
+        <input type="number" step="0.1" name="maxCgpa" value="<%= filters.maxCgpa %>" placeholder="10.0" style="width: 100%; padding: 0.45rem; border-radius: 4px; border: 1px solid var(--border-color);">
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <button type="submit" style="background: var(--primary-color); color: white; padding: 0.5rem 1.2rem; border: none; border-radius: 4px; font-weight: 600; cursor: pointer;">Apply Filters</button>
+        <a href="/admin/applications" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-size: 0.85rem;">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Applications Audit Table -->
+  <div style="background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+      <thead>
+        <tr style="background: var(--bg-card); border-bottom: 2px solid var(--border-color);">
+          <th style="padding: 1rem;">Student Details</th>
+          <th style="padding: 1rem;">Branch / CGPA</th>
+          <th style="padding: 1rem;">Drive / Company</th>
+          <th style="padding: 1rem;">Applied Date</th>
+          <th style="padding: 1rem;">Status</th>
+          <th style="padding: 1rem; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (applications.length === 0) { %>
+          <tr>
+            <td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-muted);">No candidate applications found matching the selected filter criteria.</td>
+          </tr>
+        <% } else { %>
+          <% applications.forEach(app => { %>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 1rem;">
+                <div style="font-weight: 700; color: var(--secondary-color);"><%= app.student ? app.student.name : 'Unknown' %></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);"><%= app.student ? app.student.email : '' %></div>
+                <% if (app.studentProfile && app.studentProfile.collegeId) { %>
+                  <div style="font-size: 0.75rem; font-family: monospace; color: var(--primary-color);">ID: <%= app.studentProfile.collegeId %></div>
+                <% } %>
+              </td>
+              <td style="padding: 1rem;">
+                <% if (app.studentProfile) { %>
+                  <div style="font-weight: 600;"><%= app.studentProfile.branch %> (<%= app.studentProfile.graduationYear %>)</div>
+                  <div style="font-size: 0.85rem; color: #16a34a; font-weight: 700;">CGPA: <%= app.studentProfile.cgpa ? app.studentProfile.cgpa.toFixed(2) : 'N/A' %></div>
+                <% } else { %>
+                  <span style="color: var(--text-muted); font-size: 0.85rem;">Profile Pending</span>
+                <% } %>
+              </td>
+              <td style="padding: 1rem;">
+                <div style="font-weight: 700;"><%= app.drive ? app.drive.title : 'N/A' %></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);"><%= app.drive && app.drive.company ? app.drive.company.companyName : '' %> (<%= app.drive ? app.drive.driveType : '' %>)</div>
+              </td>
+              <td style="padding: 1rem; font-size: 0.85rem;">
+                <%= new Date(app.appliedAt).toLocaleDateString() %>
+              </td>
+              <td style="padding: 1rem;">
+                <span style="font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 20px; text-transform: uppercase;
+                  background: <%= app.status === 'selected' ? '#dcfce7' : app.status === 'rejected' ? '#fee2e2' : app.status === 'interviewed' ? '#e0e7ff' : app.status === 'shortlisted' ? '#fef3c7' : '#f3f4f6' %>;
+                  color: <%= app.status === 'selected' ? '#166534' : app.status === 'rejected' ? '#991b1b' : app.status === 'interviewed' ? '#3730a3' : app.status === 'shortlisted' ? '#92400e' : '#374151' %>;">
+                  <%= app.status %>
+                </span>
+                <% if (app.adminOverrideReason) { %>
+                  <div style="font-size: 0.7rem; color: #7c3aed; font-weight: 600; margin-top: 0.2rem;">[Admin Overridden]</div>
+                <% } %>
+              </td>
+              <td style="padding: 1rem; text-align: right;">
+                <a href="/admin/applications/<%= app._id %>" style="background: var(--primary-color); color: white; padding: 0.4rem 0.85rem; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">Inspect Dossier &rarr;</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,135 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="margin-bottom: 1rem;">
+    <a href="/drives" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">&larr; Back to Available Drives</a>
+  </div>
+
+  <% if (isExpired) { %>
+    <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+      <span style="font-size: 1.5rem;">⏰</span>
+      <div>
+        <strong style="display: block; font-size: 1rem;">Application Deadline Passed</strong>
+        <p style="font-size: 0.88rem; margin: 0;">This drive opportunity expired on <%= new Date(drive.lastDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %> and is no longer accepting new applications.</p>
+      </div>
+    </div>
+  <% } %>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Left Column: Drive & Company Overview -->
+    <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+        <div>
+          <span style="font-weight: 700; color: var(--primary-color); font-size: 1.05rem;"><%= drive.company ? drive.company.name : 'Company' %></span>
+          <h1 style="font-size: 2rem; color: var(--secondary-color); margin-top: 0.2rem;"><%= drive.title %></h1>
+          <p style="color: var(--text-muted); font-size: 1rem;">Role: <strong><%= drive.role %></strong> • <%= drive.location %> (<%= drive.workMode %>)</p>
+        </div>
+        <div>
+          <% if (drive.driveType === 'placement') { %>
+            <span style="background: #dcfce7; color: #166534; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Placement</span>
+          <% } else { %>
+            <span style="background: #e0e7ff; color: #3730a3; padding: 0.4rem 0.9rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Internship</span>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (drive.company) { %>
+        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; font-size: 0.9rem;">
+          <h4 style="color: var(--secondary-color); margin-bottom: 0.3rem;">About <%= drive.company.name %></h4>
+          <p style="color: var(--text-muted); margin-bottom: 0.5rem;"><%= drive.company.description || 'No company description provided.' %></p>
+          <% if (drive.company.website) { %>
+            <a href="<%= drive.company.website %>" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Visit Company Website &nearr;</a>
+          <% } %>
+        </div>
+      <% } %>
+
+      <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem;">
+        <h3 style="font-size: 1.15rem; color: var(--secondary-color); margin-bottom: 0.75rem;">Role Description & Selection Process</h3>
+        <div style="color: var(--text-main); line-height: 1.7; white-space: pre-wrap;"><%= drive.description %></div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem;">
+        <h3 style="font-size: 1.15rem; color: var(--secondary-color); margin-bottom: 0.75rem;">Required Technical Skills</h3>
+        <% if (drive.requiredSkills && drive.requiredSkills.length > 0) { %>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <% drive.requiredSkills.forEach(s => { %>
+              <span style="background: #f1f5f9; color: var(--secondary-color); padding: 0.35rem 0.8rem; border-radius: 6px; font-weight: 600; font-size: 0.88rem; border: 1px solid var(--border-color);"><%= s %></span>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">No specific skills required.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Right Column: Eligibility Checklist Card & Application Status -->
+    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color); height: fit-content;">
+      <h3 style="font-size: 1.1rem; color: var(--secondary-color); margin-bottom: 1rem;">Drive Eligibility Criteria</h3>
+      
+      <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+        <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">COMPENSATION</label>
+        <span style="font-size: 1.25rem; font-weight: 700; color: #16a34a;">
+          <%= drive.driveType === 'placement' ? `₹${drive.package} LPA` : `₹${drive.stipend} / month` %>
+        </span>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+        <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">MINIMUM CGPA</label>
+        <span style="font-size: 1.05rem; font-weight: 700; color: var(--secondary-color);"><%= drive.minimumCGPA %> / 10.0</span>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+        <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">ELIGIBLE BRANCHES</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem;">
+          <% drive.eligibleBranches.forEach(b => { %>
+            <span style="background: #dbeafe; color: var(--primary-color); padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.8rem;"><%= b %></span>
+          <% }); %>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+        <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">TARGET GRADUATION YEARS</label>
+        <span style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);"><%= drive.graduationYears.join(', ') %></span>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">APPLICATION DEADLINE</label>
+        <span style="font-size: 0.95rem; font-weight: 700; color: <%= isExpired ? '#dc2626' : 'var(--secondary-color)' %>;">
+          <%= new Date(drive.lastDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %>
+        </span>
+      </div>
+
+      <!-- Student Eligibility Evaluation Panel -->
+      <% if (user && user.role === 'student') { %>
+        <div style="border-top: 2px solid var(--border-color); padding-top: 1rem;">
+          <h4 style="font-size: 0.95rem; color: var(--secondary-color); margin-bottom: 0.5rem;">Your Eligibility Status</h4>
+          
+          <% if (isExpired) { %>
+            <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-align: center;">
+              ⚠️ Drive Closed - Applications Expired
+            </div>
+          <% } else if (eligibilityInfo.isEligible) { %>
+            <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem; border-radius: 6px; font-size: 0.88rem; margin-bottom: 1rem;">
+              ✅ <strong>You meet all eligibility criteria!</strong>
+            </div>
+            <div style="background: #f8fafc; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); text-align: center;">
+              <a href="/drives/<%= drive._id %>/apply" style="display: block; width: 100%; padding: 0.75rem; background: var(--primary-color); color: #fff; border: none; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.95rem;">Apply Now &rarr;</a>
+            </div>
+          <% } else { %>
+            <div style="background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem;">
+              <strong>⚠️ You are currently ineligible:</strong>
+              <ul style="margin-left: 1.2rem; margin-top: 0.4rem;">
+                <% eligibilityInfo.reasons.forEach(r => { %>
+                  <li><%= r %></li>
+                <% }); %>
+              </ul>
+            </div>
+            <button disabled style="width: 100%; padding: 0.75rem; background: #e2e8f0; color: #64748b; border: none; border-radius: 6px; font-weight: 600; cursor: not-allowed;">Ineligible to Apply</button>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

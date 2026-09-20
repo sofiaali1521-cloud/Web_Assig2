@@ -1,0 +1,75 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="max-width: 460px; margin: 2rem auto; background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+    <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--text-color);">Sign In</h2>
+    <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Access your Campus Placement Account</p>
+
+    <% if (typeof query !== 'undefined' && query.error) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+        <%= query.error %>
+      </div>
+    <% } %>
+
+    <% if (typeof query !== 'undefined' && query.info) { %>
+      <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+        <%= query.info %>
+      </div>
+    <% } %>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+        <ul style="margin-left: 1.2rem; margin-top: 0; margin-bottom: 0;">
+          <% errors.forEach(err => { %>
+            <li><%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/auth/login" method="POST">
+      <div style="margin-bottom: 1.2rem;">
+        <label for="login-email" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Email Address</label>
+        <input type="email" id="login-email" name="email" value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>" required placeholder="user@college.edu" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: var(--surface-color); color: var(--text-color);">
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label for="login-password" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Password</label>
+        <input type="password" id="login-password" name="password" required placeholder="••••••••" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.95rem; background: var(--surface-color); color: var(--text-color);">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 1rem; font-weight: 600; border-radius: 6px;">
+        Sign In
+      </button>
+    </form>
+
+    <!-- Head TPO Admin Login Shortcut Helper Card -->
+    <div style="margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(79, 70, 229, 0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+        <strong style="font-size: 0.88rem; color: var(--text-color);">🛡️ Head TPO Admin Account:</strong>
+        <button type="button" onclick="fillAdminCredentials()" style="background: var(--primary-color); color: white; border: none; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+          Autofill Credentials
+        </button>
+      </div>
+      <div style="font-size: 0.82rem; color: var(--text-muted);">
+        Email: <code style="background: rgba(0,0,0,0.05); padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--text-color);">admin@placement.edu</code><br>
+        Password: <code style="background: rgba(0,0,0,0.05); padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--text-color);">Admin@123456</code>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.88rem; color: var(--text-muted);">
+      Don't have an account?<br>
+      <a href="/auth/register/student" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Register as Student</a> | 
+      <a href="/auth/register/recruiter" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Register as Recruiter</a>
+    </div>
+  </div>
+</main>
+
+<script>
+  function fillAdminCredentials() {
+    document.getElementById('login-email').value = 'admin@placement.edu';
+    document.getElementById('login-password').value = 'Admin@123456';
+  }
+</script>
+
+<%- include('../partials/footer') %>

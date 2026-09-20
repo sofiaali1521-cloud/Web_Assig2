@@ -1,0 +1,133 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Application Dossier & Status Timeline</h1>
+      <p style="color: var(--text-muted);">Application status, recruiter feedback, interview schedule, and eligibility results.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/student/applications" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600;">&larr; Back to My Applications</a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Drive & Company Overview -->
+    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+        🏢 Drive Specifications
+      </h3>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Company Name</label>
+        <strong style="font-size: 1.1rem; color: var(--secondary-color);"><%= application.drive && application.drive.company ? (application.drive.company.name || application.drive.company.companyName) : 'N/A' %></strong>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Title</label>
+          <strong><%= application.drive ? application.drive.title : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Role</label>
+          <strong><%= application.drive ? application.drive.role : 'N/A' %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Drive Type</label>
+          <span style="text-transform: uppercase; font-weight: 700; font-size: 0.8rem; color: var(--primary-color);"><%= application.drive ? application.drive.driveType : 'N/A' %></span>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Compensation</label>
+          <strong style="color: #16a34a;">
+            <% if (application.drive) { %>
+              <%= application.drive.driveType === 'placement' ? `₹${application.drive.package} LPA` : `₹${application.drive.stipend}/mo` %>
+            <% } %>
+          </strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Status & Timeline -->
+    <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+        ⏱️ Timeline & Pipeline Status
+      </h3>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Current Pipeline State</label>
+        <span style="font-size: 1rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 20px; text-transform: uppercase; display: inline-block; margin-top: 0.2rem;
+          background: <%= application.status === 'selected' ? '#dcfce7' : application.status === 'rejected' ? '#fee2e2' : application.status === 'interviewed' ? '#e0e7ff' : application.status === 'shortlisted' ? '#fef3c7' : '#f3f4f6' %>;
+          color: <%= application.status === 'selected' ? '#166534' : application.status === 'rejected' ? '#991b1b' : application.status === 'interviewed' ? '#3730a3' : application.status === 'shortlisted' ? '#92400e' : '#374151' %>;">
+          <%= application.status %>
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Applied On</label>
+          <strong><%= new Date(application.appliedAt).toLocaleString() %></strong>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Last Updated</label>
+          <strong><%= new Date(application.updatedAt).toLocaleString() %></strong>
+        </div>
+        <% if (application.interviewDate) { %>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Interview Scheduled</label>
+            <strong style="color: #7c3aed;">📆 <%= new Date(application.interviewDate).toLocaleDateString() %></strong>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (application.screeningNotes) { %>
+        <div style="background: #f8fafc; padding: 0.85rem; border-radius: 6px; border-left: 4px solid var(--primary-color); margin-top: 0.5rem;">
+          <strong style="font-size: 0.85rem; color: var(--secondary-color); display: block;">Recruiter / Screening Notes:</strong>
+          <span style="font-size: 0.9rem; color: var(--text-color);"><%= application.screeningNotes %></span>
+        </div>
+      <% } %>
+
+      <% if (application.rejectionReason) { %>
+        <div style="background: #fef2f2; padding: 0.85rem; border-radius: 6px; border-left: 4px solid #ef4444; margin-top: 0.5rem;">
+          <strong style="font-size: 0.85rem; color: #991b1b; display: block;">Feedback / Rejection Reason:</strong>
+          <span style="font-size: 0.9rem; color: #991b1b;"><%= application.rejectionReason %></span>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Student Profile & Eligibility Check Results -->
+  <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+    <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+      <span>👤 Profile & Eligibility Evaluation Checklist</span>
+      <span style="font-size: 0.85rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; background: <%= eligibilityInfo.isEligible ? '#dcfce7' : '#fee2e2' %>; color: <%= eligibilityInfo.isEligible ? '#166534' : '#991b1b' %>;">
+        <%= eligibilityInfo.isEligible ? '✅ Satisfies All Drive Criteria' : '⚠️ Criteria Warnings' %>
+      </span>
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div>
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Student Name</label>
+        <strong><%= studentProfile ? studentProfile.fullName : user.name %></strong>
+      </div>
+      <div>
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Roll / College ID</label>
+        <strong style="font-family: monospace; color: var(--primary-color);"><%= studentProfile ? studentProfile.collegeId : 'N/A' %></strong>
+      </div>
+      <div>
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Branch & CGPA</label>
+        <strong><%= studentProfile ? studentProfile.branch : 'N/A' %> (CGPA: <%= studentProfile && studentProfile.cgpa !== undefined ? studentProfile.cgpa.toFixed(2) : 'N/A' %>)</strong>
+      </div>
+    </div>
+
+    <div>
+      <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Submitted Resume Link</label>
+      <% if (studentProfile && studentProfile.resumeLink) { %>
+        <a href="<%= studentProfile.resumeLink %>" target="_blank" style="color: var(--primary-color); font-weight: 600; text-decoration: underline;">📄 Open Submitted Resume &rarr;</a>
+      <% } else { %>
+        <span style="color: #ef4444; font-size: 0.85rem;">No resume link attached</span>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <% if (typeof query !== 'undefined' && query.success) { %>
+    <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= query.success %>
+    </div>
+  <% } %>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);"><%= profile.fullName %></h1>
+      <p style="color: var(--text-muted);"><%= profile.course %> in <%= profile.branch %> (Class of <%= profile.graduationYear %>)</p>
+    </div>
+    <div>
+      <a href="/student/profile/edit" style="background: var(--primary-color); color: #fff; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">Edit Profile</a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
+    <!-- Left Column: Status Card -->
+    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border-color); height: fit-content;">
+      <h3 style="margin-bottom: 1rem; color: var(--secondary-color); font-size: 1.1rem;">Profile Completion</h3>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+        <span style="font-size: 0.9rem; color: var(--text-muted);">Overall Status</span>
+        <span style="font-weight: 700; color: var(--primary-color);"><%= completion %>%</span>
+      </div>
+      <div style="width: 100%; background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 1.5rem;">
+        <div style="width: <%= completion %>%; background: var(--primary-color); height: 100%;"></div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>College Roll ID:</strong> <%= profile.collegeId %></p>
+        <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>Phone:</strong> <%= profile.phone || 'Not specified' %></p>
+        <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>CGPA:</strong> <span style="font-weight: 700; color: var(--primary-color);"><%= profile.cgpa ? profile.cgpa.toFixed(2) : '0.00' %> / 10.0</span></p>
+      </div>
+    </div>
+
+    <!-- Right Column: Details & Skills -->
+    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border-color);">
+      <h3 style="margin-bottom: 1rem; color: var(--secondary-color); font-size: 1.1rem;">Academic & Skill Profile</h3>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem;">Technical Skills</label>
+        <% if (profile.skills && profile.skills.length > 0) { %>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <% profile.skills.forEach(skill => { %>
+              <span style="background: #dbeafe; color: var(--primary-color); padding: 0.35rem 0.8rem; border-radius: 9999px; font-weight: 600; font-size: 0.85rem;"><%= skill %></span>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p style="color: var(--text-muted); font-size: 0.9rem; italic;">No technical skills listed yet.</p>
+        <% } %>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem;">Resume Link</label>
+        <% if (profile.resumeLink) { %>
+          <a href="<%= profile.resumeLink %>" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #f1f5f9; color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+            📄 View Resume Document &nearr;
+          </a>
+        <% } else { %>
+          <p style="color: #dc2626; font-size: 0.9rem;">⚠️ No resume link provided. Please add a link to apply for drives.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,151 @@
+<%- include('../partials/header') %>
+
+<%
+  let existingPhone = (profile && profile.phone) ? profile.phone.trim() : '';
+  let selectedCountryCode = '+91';
+  let rawPhoneNumber = existingPhone;
+
+  const knownCodes = ['+91', '+1', '+44', '+971', '+65', '+61', '+49', '+81', '+33', '+86'];
+  for (const code of knownCodes) {
+    if (existingPhone.startsWith(code)) {
+      selectedCountryCode = code;
+      rawPhoneNumber = existingPhone.slice(code.length).trim();
+      break;
+    }
+  }
+%>
+
+<main class="container">
+  <div style="max-width: 680px; margin: 1.5rem auto; background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+    <h2 style="margin-bottom: 0.5rem; color: var(--text-color);">Edit Student Profile</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Update your academic details, skills, and upload your resume for company drive eligibility.</p>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <ul style="margin-left: 1.2rem; margin-top: 0; margin-bottom: 0;">
+          <% errors.forEach(err => { %>
+            <li><%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/student/profile/edit" method="POST" enctype="multipart/form-data">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Full Name *</label>
+          <input type="text" name="fullName" value="<%= profile.fullName || '' %>" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">College Roll Number / ID *</label>
+          <input type="text" name="collegeId" value="<%= profile.collegeId || '' %>" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Course *</label>
+          <select name="course" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+            <option value="B.Tech" <%= profile.course === 'B.Tech' ? 'selected' : '' %>>B.Tech</option>
+            <option value="M.Tech" <%= profile.course === 'M.Tech' ? 'selected' : '' %>>M.Tech</option>
+            <option value="BCA" <%= profile.course === 'BCA' ? 'selected' : '' %>>BCA</option>
+            <option value="MCA" <%= profile.course === 'MCA' ? 'selected' : '' %>>MCA</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Branch *</label>
+          <select name="branch" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+            <option value="CSE" <%= profile.branch === 'CSE' ? 'selected' : '' %>>CSE (Computer Science)</option>
+            <option value="IT" <%= profile.branch === 'IT' ? 'selected' : '' %>>IT (Information Technology)</option>
+            <option value="ECE" <%= profile.branch === 'ECE' ? 'selected' : '' %>>ECE (Electronics & Comm.)</option>
+            <option value="EEE" <%= profile.branch === 'EEE' ? 'selected' : '' %>>EEE (Electrical & Electronics)</option>
+            <option value="Mechanical" <%= profile.branch === 'Mechanical' ? 'selected' : '' %>>Mechanical Engineering</option>
+            <option value="Civil" <%= profile.branch === 'Civil' ? 'selected' : '' %>>Civil Engineering</option>
+            <option value="Other" <%= profile.branch === 'Other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Graduation Year *</label>
+          <input type="number" name="graduationYear" value="<%= profile.graduationYear || '2026' %>" required min="2000" max="2100" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">CGPA (0.0 - 10.0) *</label>
+          <input type="number" step="0.01" name="cgpa" value="<%= typeof profile.cgpa !== 'undefined' ? profile.cgpa : '' %>" required min="0" max="10" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <!-- Phone Number with Country Code Dropdown -->
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Phone Number</label>
+        <div style="display: flex; gap: 0.5rem; width: 100%;">
+          <select name="countryCode" style="width: 160px; padding: 0.75rem 0.5rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color); font-weight: 600; cursor: pointer;">
+            <option value="+91" <%= selectedCountryCode === '+91' ? 'selected' : '' %>>🇮🇳 +91 (IN)</option>
+            <option value="+1" <%= selectedCountryCode === '+1' ? 'selected' : '' %>>🇺🇸 +1 (US/CA)</option>
+            <option value="+44" <%= selectedCountryCode === '+44' ? 'selected' : '' %>>🇬🇧 +44 (UK)</option>
+            <option value="+971" <%= selectedCountryCode === '+971' ? 'selected' : '' %>>🇦🇪 +971 (UAE)</option>
+            <option value="+65" <%= selectedCountryCode === '+65' ? 'selected' : '' %>>🇸🇬 +65 (SG)</option>
+            <option value="+61" <%= selectedCountryCode === '+61' ? 'selected' : '' %>>🇦🇺 +61 (AU)</option>
+            <option value="+49" <%= selectedCountryCode === '+49' ? 'selected' : '' %>>🇩🇪 +49 (DE)</option>
+            <option value="+81" <%= selectedCountryCode === '+81' ? 'selected' : '' %>>🇯🇵 +81 (JP)</option>
+            <option value="+33" <%= selectedCountryCode === '+33' ? 'selected' : '' %>>🇫🇷 +33 (FR)</option>
+            <option value="" <%= knownCodes.includes(selectedCountryCode) ? '' : 'selected' %>>🌐 Other</option>
+          </select>
+          <input type="tel" name="phoneNumber" value="<%= rawPhoneNumber %>" placeholder="9876543210" style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Technical Skills (Comma separated)</label>
+        <input type="text" name="skills" value="<%= typeof skillsString !== 'undefined' ? skillsString : (Array.isArray(profile.skills) ? profile.skills.join(', ') : '') %>" placeholder="JavaScript, Node.js, Python, React, SQL" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        <small style="color: var(--text-muted); font-size: 0.82rem;">Separate skills with commas (e.g. Node.js, Express, MongoDB)</small>
+      </div>
+
+      <!-- Resume Options Container -->
+      <div style="margin-bottom: 1.5rem; padding: 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(79, 70, 229, 0.03);">
+        <label style="display: block; margin-bottom: 0.75rem; font-weight: 700; font-size: 0.95rem; color: var(--text-color);">
+          📄 Student Resume
+        </label>
+
+        <% if (profile.resumeLink) { %>
+          <div style="margin-bottom: 1rem; padding: 0.6rem 0.8rem; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 0.85rem; color: var(--text-color); font-weight: 500;">
+              Current Resume: <strong><%= profile.resumeLink.startsWith('/uploads/') ? profile.resumeLink.split('/').pop() : profile.resumeLink %></strong>
+            </span>
+            <a href="<%= profile.resumeLink %>" target="_blank" rel="noopener noreferrer" style="font-size: 0.82rem; color: var(--primary-color); font-weight: 600; text-decoration: underline;">
+              View Resume &nearr;
+            </a>
+          </div>
+        <% } %>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.85rem; color: var(--text-color);">
+            Option A: Choose File from Computer (PDF, DOC, DOCX)
+          </label>
+          <input type="file" name="resumeFile" accept=".pdf,.doc,.docx" style="width: 100%; padding: 0.6rem; border: 1px dashed var(--primary-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+          <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.2rem;">Max file size: 10MB (.pdf, .doc, .docx supported)</small>
+        </div>
+
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin: 0.5rem 0; font-weight: 600;">
+          — OR —
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.85rem; color: var(--text-color);">
+            Option B: Web URL / Cloud Link (Google Drive, Dropbox, Portfolio)
+          </label>
+          <input type="url" name="resumeLink" value="<%= profile.resumeLink && !profile.resumeLink.startsWith('/uploads/') ? profile.resumeLink : '' %>" placeholder="https://drive.google.com/file/d/your-resume/view" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="/student/profile" style="padding: 0.75rem 1.5rem; background: rgba(0,0,0,0.05); color: var(--text-color); border-radius: 6px; text-decoration: none; font-weight: 600;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 600;">Save Profile & Resume</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

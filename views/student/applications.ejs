@@ -1,0 +1,117 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">My Applications & Status Tracking</h1>
+      <p style="color: var(--text-muted);">Track your active job & internship drive applications and recruitment pipeline timeline.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/drives" style="background: var(--primary-color); color: #fff; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">Browse More Drives &rarr;</a>
+    </div>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="alert alert-success" style="margin-bottom: 1.5rem;"><%= success %></div>
+  <% } %>
+
+  <% if (typeof info !== 'undefined' && info) { %>
+    <div style="background: #dbeafe; border: 1px solid #93c5fd; color: #1e40af; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= info %>
+    </div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger" style="margin-bottom: 1.5rem;"><%= error %></div>
+  <% } %>
+
+  <!-- Status Filter Pills -->
+  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+    <% const currentFilter = typeof selectedStatus !== 'undefined' ? selectedStatus : 'all'; %>
+    <a href="/student/applications?status=all" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'all' ? 'var(--primary-color)' : 'var(--bg-card)' %>; color: <%= currentFilter === 'all' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">All Applications</a>
+    <a href="/student/applications?status=applied" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'applied' ? '#3b82f6' : 'var(--bg-card)' %>; color: <%= currentFilter === 'applied' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">Applied</a>
+    <a href="/student/applications?status=shortlisted" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'shortlisted' ? '#f59e0b' : 'var(--bg-card)' %>; color: <%= currentFilter === 'shortlisted' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">Shortlisted</a>
+    <a href="/student/applications?status=interviewed" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'interviewed' ? '#7c3aed' : 'var(--bg-card)' %>; color: <%= currentFilter === 'interviewed' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">Interviewed</a>
+    <a href="/student/applications?status=selected" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'selected' ? '#10b981' : 'var(--bg-card)' %>; color: <%= currentFilter === 'selected' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">Selected 🎉</a>
+    <a href="/student/applications?status=rejected" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'rejected' ? '#ef4444' : 'var(--bg-card)' %>; color: <%= currentFilter === 'rejected' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">Rejected</a>
+    <a href="/student/applications?status=withdrawn" style="padding: 0.45rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 700; background: <%= currentFilter === 'withdrawn' ? '#6b7280' : 'var(--bg-card)' %>; color: <%= currentFilter === 'withdrawn' ? '#ffffff' : 'var(--secondary-color)' %>; border: 1px solid var(--border-color);">Withdrawn</a>
+  </div>
+
+  <div style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+      <thead>
+        <tr style="background: var(--bg-card); border-bottom: 2px solid var(--border-color);">
+          <th style="padding: 1rem;">Company & Role</th>
+          <th style="padding: 1rem;">Type</th>
+          <th style="padding: 1rem;">Compensation</th>
+          <th style="padding: 1rem;">Applied Date</th>
+          <th style="padding: 1rem;">Last Updated</th>
+          <th style="padding: 1rem;">Status & Feedback</th>
+          <th style="padding: 1rem; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (applications.length === 0) { %>
+          <tr>
+            <td colspan="7" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+              No drive applications found matching the selected status filter.<br>
+              <a href="/drives" style="color: var(--primary-color); font-weight: 600; text-decoration: none; display: inline-block; margin-top: 0.5rem;">Explore Available Drives &rarr;</a>
+            </td>
+          </tr>
+        <% } %>
+
+        <% applications.forEach(app => { %>
+          <tr style="border-bottom: 1px solid var(--border-color);">
+            <td style="padding: 1rem;">
+              <strong style="color: var(--secondary-color); display: block;"><%= app.drive ? app.drive.title : 'Placement Drive' %></strong>
+              <small style="color: var(--primary-color); font-weight: 600;"><%= app.drive && app.drive.company ? (app.drive.company.name || app.drive.company.companyName) : 'Company' %> (<%= app.drive ? app.drive.role : '' %>)</small>
+            </td>
+            <td style="padding: 1rem; text-transform: capitalize; font-weight: 600;">
+              <%= app.drive ? app.drive.driveType : 'N/A' %>
+            </td>
+            <td style="padding: 1rem; font-weight: 700; color: #16a34a;">
+              <% if (app.drive) { %>
+                <%= app.drive.driveType === 'placement' ? `₹${app.drive.package} LPA` : `₹${app.drive.stipend}/mo` %>
+              <% } else { %>
+                N/A
+              <% } %>
+            </td>
+            <td style="padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+              <%= new Date(app.appliedAt).toLocaleDateString() %>
+            </td>
+            <td style="padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+              <%= new Date(app.updatedAt).toLocaleDateString() %>
+            </td>
+            <td style="padding: 1rem;">
+              <span style="font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 20px; text-transform: uppercase;
+                background: <%= app.status === 'selected' ? '#dcfce7' : app.status === 'rejected' ? '#fee2e2' : app.status === 'interviewed' ? '#e0e7ff' : app.status === 'shortlisted' ? '#fef3c7' : '#f3f4f6' %>;
+                color: <%= app.status === 'selected' ? '#166534' : app.status === 'rejected' ? '#991b1b' : app.status === 'interviewed' ? '#3730a3' : app.status === 'shortlisted' ? '#92400e' : '#374151' %>;">
+                <%= app.status %>
+              </span>
+
+              <% if (app.interviewDate) { %>
+                <div style="font-size: 0.75rem; color: #7c3aed; font-weight: 700; margin-top: 0.3rem;">📆 Interview: <%= new Date(app.interviewDate).toLocaleDateString() %></div>
+              <% } %>
+              <% if (app.rejectionReason) { %>
+                <div style="font-size: 0.75rem; color: #dc2626; font-weight: 600; margin-top: 0.2rem;">Feedback: <%= app.rejectionReason %></div>
+              <% } %>
+            </td>
+            <td style="padding: 1rem; text-align: right;">
+              <div style="display: flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
+                <a href="/student/applications/<%= app._id %>" style="background: var(--primary-color); color: white; padding: 0.35rem 0.75rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; text-decoration: none;">Dossier &rarr;</a>
+
+                <% if (app.status === 'applied') { %>
+                  <form action="/student/applications/<%= app._id %>/withdraw" method="POST" style="display: inline;">
+                    <button type="submit" onclick="return confirm('Are you sure you want to withdraw this application?');" style="background: #f1f5f9; color: #dc2626; border: 1px solid #fca5a5; padding: 0.35rem 0.65rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">Withdraw</button>
+                  </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

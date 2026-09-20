@@ -1,0 +1,71 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <% if (typeof query !== 'undefined' && query.success) { %>
+    <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= query.success %>
+    </div>
+  <% } %>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);"><%= profile.user.name %></h1>
+      <p style="color: var(--text-muted);"><%= profile.designation %> at <strong><%= company ? company.name : 'Company' %></strong></p>
+    </div>
+    <div>
+      <a href="/recruiter/profile/edit" style="background: var(--primary-color); color: #fff; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">Edit Recruiter & Company Info</a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
+    <!-- Recruiter Details -->
+    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border-color); height: fit-content;">
+      <h3 style="margin-bottom: 1rem; color: var(--secondary-color); font-size: 1.1rem;">Recruiter Details</h3>
+      <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>Email:</strong> <%= profile.user.email %></p>
+      <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>Phone:</strong> <%= profile.user.phone || 'Not provided' %></p>
+      <p style="margin-bottom: 0.5rem; font-size: 0.9rem;"><strong>Designation:</strong> <%= profile.designation %></p>
+      
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Verification Status</label>
+        <% if (profile.verified) { %>
+          <span style="display: inline-block; margin-top: 0.3rem; background: #dcfce7; color: #15803d; padding: 0.3rem 0.8rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Verified</span>
+        <% } else { %>
+          <span style="display: inline-block; margin-top: 0.3rem; background: #fef3c7; color: #b45309; padding: 0.3rem 0.8rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem;">Pending Verification</span>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Company Details -->
+    <div style="background: var(--card-bg); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border-color);">
+      <h3 style="margin-bottom: 1rem; color: var(--secondary-color); font-size: 1.1rem;">Company Overview</h3>
+      <p style="margin-bottom: 0.75rem; font-size: 1.1rem; font-weight: 700; color: var(--primary-color);"><%= company ? company.name : 'Company Name' %></p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Industry</label>
+          <p style="font-size: 0.95rem;"><%= company && company.industry ? company.industry : 'N/A' %></p>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Location</label>
+          <p style="font-size: 0.95rem;"><%= company && company.location ? company.location : 'N/A' %></p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Website</label>
+        <% if (company && company.website) { %>
+          <a href="<%= company.website %>" target="_blank" rel="noopener noreferrer" style="color: var(--primary-color); font-weight: 600; text-decoration: none; font-size: 0.95rem;"><%= company.website %> &nearr;</a>
+        <% } else { %>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Not specified</p>
+        <% } %>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Company Description</label>
+        <p style="font-size: 0.95rem; color: var(--text-main); margin-top: 0.3rem; white-space: pre-wrap;"><%= company && company.description ? company.description : 'No description provided.' %></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

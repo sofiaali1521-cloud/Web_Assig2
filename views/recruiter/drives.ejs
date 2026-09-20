@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">My Posted Drives</h1>
+      <p style="color: var(--text-muted);">Manage your placement and internship opportunities</p>
+    </div>
+    <div>
+      <% if (recruiterProf && !recruiterProf.verified) { %>
+        <span style="background: #fef3c7; color: #b45309; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.88rem; margin-right: 0.5rem;">⚠️ Account Unverified</span>
+      <% } %>
+      <a href="/drives/create" style="background: var(--primary-color); color: #fff; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 600;">+ Post New Drive</a>
+    </div>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div style="background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= success %>
+    </div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <div class="table-responsive" style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+      <thead>
+        <tr style="background: #f1f5f9; color: var(--secondary-color); font-weight: 700; border-bottom: 1px solid var(--border-color);">
+          <th style="padding: 1rem;">Drive Title / Role</th>
+          <th style="padding: 1rem;">Type</th>
+          <th style="padding: 1rem;">Compensation</th>
+          <th style="padding: 1rem;">Min CGPA</th>
+          <th style="padding: 1rem;">Deadline</th>
+          <th style="padding: 1rem;">Status</th>
+          <th style="padding: 1rem; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (drives.length === 0) { %>
+          <tr>
+            <td colspan="7" style="padding: 2rem; text-align: center; color: var(--text-muted);">No drives posted yet. Click "+ Post New Drive" to create your first opportunity.</td>
+          </tr>
+        <% } %>
+
+        <% drives.forEach(d => { %>
+          <tr style="border-bottom: 1px solid var(--border-color);">
+            <td style="padding: 1rem;">
+              <strong style="color: var(--secondary-color); display: block;"><%= d.title %></strong>
+              <small style="color: var(--text-muted);"><%= d.role %> • <%= d.location %></small>
+            </td>
+            <td style="padding: 1rem;">
+              <span style="text-transform: capitalize; font-weight: 600;"><%= d.driveType %></span>
+            </td>
+            <td style="padding: 1rem; font-weight: 700; color: #16a34a;">
+              <%= d.driveType === 'placement' ? `₹${d.package} LPA` : `₹${d.stipend}/mo` %>
+            </td>
+            <td style="padding: 1rem;"><%= d.minimumCGPA %></td>
+            <td style="padding: 1rem; color: #dc2626; font-weight: 600;">
+              <%= new Date(d.lastDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+            </td>
+            <td style="padding: 1rem;">
+              <% if (d.status === 'published') { %>
+                <span style="background: #dcfce7; color: #15803d; padding: 0.25rem 0.65rem; border-radius: 9999px; font-weight: 700; font-size: 0.8rem;">Published</span>
+              <% } else if (d.status === 'draft') { %>
+                <span style="background: #fef3c7; color: #b45309; padding: 0.25rem 0.65rem; border-radius: 9999px; font-weight: 700; font-size: 0.8rem;">Draft</span>
+              <% } else if (d.status === 'closed') { %>
+                <span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.65rem; border-radius: 9999px; font-weight: 700; font-size: 0.8rem;">Closed</span>
+              <% } else { %>
+                <span style="background: #fee2e2; color: #dc2626; padding: 0.25rem 0.65rem; border-radius: 9999px; font-weight: 700; font-size: 0.8rem;">Cancelled</span>
+              <% } %>
+            </td>
+            <td style="padding: 1rem; text-align: right;">
+              <div style="display: inline-flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end;">
+                <a href="/recruiter/drives/<%= d._id %>/applicants" style="background: var(--primary-color); color: #fff; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; text-decoration: none;">View Applicants</a>
+                <a href="/drives/<%= d._id %>/edit" style="background: #e2e8f0; color: var(--text-main); padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; text-decoration: none;">Edit</a>
+
+                <% if (d.status === 'draft') { %>
+                  <form action="/drives/<%= d._id %>/status" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="published">
+                    <button type="submit" style="background: #16a34a; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">Publish</button>
+                  </form>
+                <% } else if (d.status === 'published') { %>
+                  <form action="/drives/<%= d._id %>/status" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="closed">
+                    <button type="submit" style="background: #64748b; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; font-size: 0.82rem; cursor: pointer;">Close</button>
+                  </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

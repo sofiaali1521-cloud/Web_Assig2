@@ -1,0 +1,30 @@
+# Node Dependencies
+node_modules/
+
+# Environment Files
+.env
+.env.local
+.env.production
+
+# Log Files
+*.log
+logs/
+
+# Uploaded Files / Dynamic Assets
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Temporary / Scratch Files
+scratch/
+tmp/
+temp/
+
+# OS-Specific Files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo

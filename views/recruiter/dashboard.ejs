@@ -1,0 +1,183 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">Recruiter Dashboard</h1>
+      <p style="color: var(--text-muted);">Welcome, <strong><%= user.name %></strong> (<%= profile.designation %> at <%= company ? (company.name || company.companyName) : 'Company' %>)</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <a href="/drives/create" class="btn btn-primary" style="padding: 0.65rem 1.2rem; font-weight: 700; font-size: 0.9rem;">➕ Post New Drive</a>
+      <a href="/recruiter/profile/edit" class="btn btn-outline" style="padding: 0.65rem 1.1rem; font-weight: 600; font-size: 0.9rem;">🏢 Edit Company Info</a>
+    </div>
+  </div>
+
+  <!-- Verification Alert Status Banner -->
+  <% if (!profile.verified) { %>
+    <div style="background: #fffbeb; border-left: 5px solid #f59e0b; color: #b45309; padding: 1.2rem; border-radius: 8px; margin-bottom: 2rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.5rem;">⏳</span>
+        <div>
+          <h4 style="margin: 0 0 0.2rem 0; font-size: 1.05rem; color: #92400e;">Account Verification Pending</h4>
+          <p style="font-size: 0.9rem; margin: 0;">Your recruiter profile is under review by the College Placement Office (TPO). Once verified, you will be able to publish campus placement and internship drives.</p>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div style="background: #f0fdf4; border-left: 5px solid #16a34a; color: #15803d; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.5rem;">✅</span>
+        <div>
+          <h4 style="margin: 0 0 0.2rem 0; font-size: 1.05rem; color: #166534;">Verified Recruiter Partner</h4>
+          <p style="font-size: 0.9rem; margin: 0;">Your company profile is verified. You have full authorization to create, publish, and manage campus drives.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Quick Action Controls Card Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <a href="/drives/create" style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">🚀 Post Drive</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Create a placement or internship opportunity.</p>
+    </a>
+    <a href="/drives/recruiter/manage" style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">📂 View My Drives</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Manage draft, published, and closed drives.</p>
+    </a>
+    <a href="/drives/recruiter/manage" style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">👥 Screen Applicants</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Review student applications & resumes.</p>
+    </a>
+    <a href="/recruiter/profile/edit" style="background: var(--surface-color); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-decoration: none; display: block;">
+      <h4 style="color: var(--primary-color); margin: 0 0 0.4rem 0;">🏢 Company Profile</h4>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Update company website, location & description.</p>
+    </a>
+  </div>
+
+  <!-- Drives Overview Metrics Grid -->
+  <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem;">📢 Company Drives Overview</h3>
+  <div class="features-grid" style="margin-bottom: 2rem;">
+    <div class="feature-card" style="border-left: 4px solid var(--primary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--primary-color); margin-bottom: 0.2rem;"><%= stats.totalDrives %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Drives Created</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #16a34a;">
+      <h3 style="font-size: 2.2rem; color: #16a34a; margin-bottom: 0.2rem;"><%= stats.publishedDrives %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Published Drives</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size: 2.2rem; color: #d97706; margin-bottom: 0.2rem;"><%= stats.draftDrives %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Draft Drives</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size: 2.2rem; color: #ef4444; margin-bottom: 0.2rem;"><%= stats.closedDrives %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Closed Drives</p>
+    </div>
+  </div>
+
+  <!-- Applicant Metrics Breakdown -->
+  <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 1rem;">👥 Applicant Pipeline Metrics</h3>
+  <div class="features-grid" style="margin-bottom: 2rem;">
+    <div class="feature-card" style="border-left: 4px solid var(--secondary-color);">
+      <h3 style="font-size: 2.2rem; color: var(--secondary-color); margin-bottom: 0.2rem;"><%= stats.totalApplicants %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Total Applicants</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #f59e0b;">
+      <h3 style="font-size: 2.2rem; color: #d97706; margin-bottom: 0.2rem;"><%= stats.shortlistedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Shortlisted</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #7c3aed;">
+      <h3 style="font-size: 2.2rem; color: #7c3aed; margin-bottom: 0.2rem;"><%= stats.interviewedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Interviewed</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #16a34a;">
+      <h3 style="font-size: 2.2rem; color: #16a34a; margin-bottom: 0.2rem;"><%= stats.selectedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Selections</p>
+    </div>
+    <div class="feature-card" style="border-left: 4px solid #ef4444;">
+      <h3 style="font-size: 2.2rem; color: #ef4444; margin-bottom: 0.2rem;"><%= stats.rejectedCount %></h3>
+      <p style="font-weight: 600; color: var(--secondary-color);">Rejected</p>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- Recent Applicants Table -->
+    <div style="background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.6rem;">
+        <h3 style="font-size: 1.2rem; color: var(--secondary-color); margin: 0;">📑 Recent Candidate Submissions</h3>
+        <a href="/drives/recruiter/manage" style="font-size: 0.85rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">View All Applicants &rarr;</a>
+      </div>
+
+      <% if (recentApplicants.length === 0) { %>
+        <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">No student applications received yet for your company drives.</p>
+      <% } else { %>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+                <th style="padding: 0.6rem 0.5rem;">Candidate Name</th>
+                <th style="padding: 0.6rem 0.5rem;">Drive / Role</th>
+                <th style="padding: 0.6rem 0.5rem;">Date Applied</th>
+                <th style="padding: 0.6rem 0.5rem;">Status</th>
+                <th style="padding: 0.6rem 0.5rem; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentApplicants.forEach(app => { %>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                  <td style="padding: 0.75rem 0.5rem;">
+                    <div style="font-weight: 700; color: var(--secondary-color);"><%= app.student ? app.student.name : 'Unknown' %></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);"><%= app.student ? app.student.email : '' %></div>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem;">
+                    <div style="font-weight: 600;"><%= app.drive ? app.drive.title : 'N/A' %></div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);"><%= app.drive ? app.drive.role : '' %></div>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem; font-size: 0.85rem;">
+                    <%= new Date(app.appliedAt).toLocaleDateString() %>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem;">
+                    <span style="font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 12px; text-transform: uppercase;
+                      background: <%= app.status === 'selected' ? '#dcfce7' : app.status === 'rejected' ? '#fee2e2' : app.status === 'interviewed' ? '#e0e7ff' : app.status === 'shortlisted' ? '#fef3c7' : '#f3f4f6' %>;
+                      color: <%= app.status === 'selected' ? '#166534' : app.status === 'rejected' ? '#991b1b' : app.status === 'interviewed' ? '#3730a3' : app.status === 'shortlisted' ? '#92400e' : '#374151' %>;">
+                      <%= app.status %>
+                    </span>
+                  </td>
+                  <td style="padding: 0.75rem 0.5rem; text-align: right;">
+                    <a href="/recruiter/applications/<%= app._id %>" style="font-size: 0.8rem; color: var(--primary-color); font-weight: 600; text-decoration: none;">Review &rarr;</a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Upcoming Interviews List -->
+    <div style="background: var(--surface-color); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.6rem; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.2rem; color: var(--secondary-color); margin: 0;">📅 Upcoming Interviews</h3>
+      </div>
+
+      <% if (upcomingInterviews.length === 0) { %>
+        <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1.5rem 0;">No candidate interviews scheduled.</p>
+      <% } else { %>
+        <% upcomingInterviews.forEach(interview => { %>
+          <div style="background: rgba(124, 58, 237, 0.05); border-left: 4px solid #7c3aed; padding: 0.85rem; border-radius: 6px; margin-bottom: 0.75rem;">
+            <strong style="color: var(--secondary-color); display: block; font-size: 0.9rem;">
+              👤 <%= interview.student ? interview.student.name : 'Candidate' %>
+            </strong>
+            <div style="font-size: 0.8rem; color: var(--text-muted);"><%= interview.drive ? interview.drive.title : '' %></div>
+            <div style="font-size: 0.8rem; color: #7c3aed; font-weight: 700; margin-top: 0.2rem;">
+              📆 <%= interview.interviewDate ? new Date(interview.interviewDate).toLocaleDateString() : 'Scheduled Soon' %>
+            </div>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

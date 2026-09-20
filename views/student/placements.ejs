@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2rem; color: var(--secondary-color);">My Placement & Internship Records</h1>
+      <p style="color: var(--text-muted);">Official selection records, offer packages, and company placement entries.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="/student/dashboard" style="background: var(--bg-card); color: var(--secondary-color); border: 1px solid var(--border-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600;">&larr; Student Dashboard</a>
+    </div>
+  </div>
+
+  <% if (placements.length === 0) { %>
+    <div style="background: var(--bg-card); padding: 3rem; border-radius: 10px; border: 1px solid var(--border-color); text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎯</div>
+      <h3 style="font-size: 1.25rem; color: var(--secondary-color); margin-bottom: 0.4rem;">No official placement records yet.</h3>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem auto;">When a company selects you for a placement or internship drive, your official record and offer package details will be published here.</p>
+      <a href="/drives" style="background: var(--primary-color); color: white; padding: 0.65rem 1.3rem; border-radius: 6px; text-decoration: none; font-weight: 700;">Explore Open Drives &rarr;</a>
+    </div>
+  <% } else { %>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+      <% placements.forEach(record => { %>
+        <div style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color); padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-top: 5px solid #10b981;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <div>
+              <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: #e0e7ff; color: #3730a3;">
+                <%= record.placementType %>
+              </span>
+              <h3 style="font-size: 1.3rem; color: var(--secondary-color); margin: 0.4rem 0 0.1rem 0;">
+                <%= record.company ? (record.company.name || record.company.companyName) : 'Company' %>
+              </h3>
+              <span style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600;"><%= record.role %></span>
+            </div>
+            <span style="background: #dcfce7; color: #166534; font-size: 0.8rem; font-weight: 800; padding: 0.3rem 0.7rem; border-radius: 20px; text-transform: uppercase;">
+              <%= record.status %>
+            </span>
+          </div>
+
+          <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block;">Compensation Package / Offer</label>
+            <strong style="font-size: 1.5rem; color: #10b981;">
+              <% if (record.placementType === 'internship') { %>
+                ₹<%= record.package %>/mo
+              <% } else { %>
+                ₹<%= record.package %> LPA
+              <% } %>
+            </strong>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.85rem;">
+            <div>
+              <span style="color: var(--text-muted); display: block;">Selection Date</span>
+              <strong><%= new Date(record.selectedAt).toLocaleDateString() %></strong>
+            </div>
+            <% if (record.joiningDate) { %>
+              <div>
+                <span style="color: var(--text-muted); display: block;">Expected Joining</span>
+                <strong style="color: var(--primary-color);"><%= new Date(record.joiningDate).toLocaleDateString() %></strong>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>
