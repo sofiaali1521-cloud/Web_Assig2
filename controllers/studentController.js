@@ -1,10 +1,14 @@
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const StudentProfile = require('../models/StudentProfile');
 const User = require('../models/User');
 const Application = require('../models/Application');
 const PlacementRecord = require('../models/PlacementRecord');
 const Drive = require('../models/Drive');
 const Company = require('../models/Company');
+const inMemoryStore = require('../config/inMemoryStore');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // Helper to calculate profile completion percentage
 const calculateCompletionStatus = (profile) => {
@@ -23,6 +27,31 @@ const calculateCompletionStatus = (profile) => {
 exports.getDashboard = async (req, res, next) => {
   try {
     const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getStudentProfile(studentUserId);
+      const completion = calculateCompletionStatus(profile);
+      const apps = inMemoryStore.getStudentApplications(studentUserId);
+
+      return res.render('student/dashboard', {
+        title: 'Student Dashboard - Campus Placement System',
+        profile,
+        user: req.session.user,
+        stats: {
+          completion,
+          totalApplications: apps.length,
+          activeApplications: apps.length,
+          shortlistedCount: 0,
+          interviewedCount: 0,
+          selectedCount: 0,
+          rejectedCount: 0
+        },
+        placementStatus: apps.length > 0 ? 'Application in progress' : 'Not placed',
+        placementDetails: null,
+        recentApplications: [],
+        upcomingInterviews: []
+      });
+    }
     let profile = await StudentProfile.findOne({ user: studentUserId })
       .populate('placedCompany')
       .populate('placedDrive');
