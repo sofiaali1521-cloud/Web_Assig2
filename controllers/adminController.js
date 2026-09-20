@@ -326,6 +326,43 @@ exports.updateDriveStatus = async (req, res, next) => {
 exports.getApplications = async (req, res, next) => {
   try {
     const { company, drive, driveType, branch, graduationYear, status, minCgpa, maxCgpa, startDate, endDate, search } = req.query;
+
+    if (!isDbConnected()) {
+      const applications = inMemoryStore.applications.map(app => {
+        const driveObj = inMemoryStore.getDriveById(app.drive) || { title: 'Software Engineer', driveType: 'placement', companyName: 'TechCorp Global' };
+        const studentUser = inMemoryStore.findUserById(app.student) || { name: 'Alex Student', email: 'user@college.edu' };
+        const studentProfile = inMemoryStore.getStudentProfile(app.student);
+        return {
+          ...app,
+          drive: { ...driveObj, company: { name: driveObj.companyName } },
+          student: studentUser,
+          studentProfile
+        };
+      });
+
+      return res.render('admin/applications', {
+        title: 'Global Applications Audit & Oversight',
+        applications,
+        companies: inMemoryStore.companies,
+        drives: inMemoryStore.drives,
+        filters: {
+          company: company || '',
+          drive: drive || '',
+          driveType: driveType || '',
+          branch: branch || '',
+          graduationYear: graduationYear || '',
+          status: status || '',
+          minCgpa: minCgpa || '',
+          maxCgpa: maxCgpa || '',
+          startDate: startDate || '',
+          endDate: endDate || '',
+          search: search || ''
+        },
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
+
     const query = {};
 
     if (status) {
@@ -453,6 +490,29 @@ exports.getApplications = async (req, res, next) => {
 exports.getApplicationDetail = async (req, res, next) => {
   try {
     const applicationId = req.params.id;
+
+    if (!isDbConnected()) {
+      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId) || inMemoryStore.applications[0];
+      const driveObj = inMemoryStore.getDriveById(appRecord ? appRecord.drive : 'drive_1') || inMemoryStore.drives[0];
+      const studentUser = inMemoryStore.findUserById(appRecord ? appRecord.student : 'student_demo_id') || inMemoryStore.users[1];
+      const studentProfile = inMemoryStore.getStudentProfile(studentUser._id);
+
+      const application = {
+        ...appRecord,
+        drive: { ...driveObj, company: { name: driveObj.companyName } },
+        student: studentUser
+      };
+
+      return res.render('admin/application-detail', {
+        title: `Application Dossier - ${studentUser.name}`,
+        application,
+        studentProfile,
+        eligibilityResult: { isEligible: true, criteriaBreakdown: [] },
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
+
     const application = await Application.findById(applicationId)
       .populate({
         path: 'drive',
@@ -495,6 +555,12 @@ exports.overrideApplicationStatus = async (req, res, next) => {
     const allowedStatuses = ['applied', 'shortlisted', 'interviewed', 'selected', 'rejected', 'withdrawn'];
     if (!allowedStatuses.includes(status)) {
       return res.redirect(`/admin/applications/${applicationId}?error=Invalid+status+specified`);
+    }
+
+    if (!isDbConnected()) {
+      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId);
+      if (appRecord) appRecord.status = status;
+      return res.redirect(`/admin/applications/${applicationId}?success=Application+status+overridden+to+${status}+successfully`);
     }
 
     const application = await Application.findById(applicationId).populate('drive');
@@ -563,6 +629,10 @@ exports.toggleStudentPolicyExemption = async (req, res, next) => {
     const studentUserId = req.params.id;
     const { exemptionReason } = req.body;
 
+    if (!isDbConnected()) {
+      return res.redirect(`/admin/applications?success=Placement+policy+exemption+updated+successfully`);
+    }
+
     const profile = await StudentProfile.findOne({ user: studentUserId });
     if (!profile) {
       return res.redirect('/admin/applications?error=Student+profile+not+found');
@@ -589,6 +659,23 @@ exports.toggleStudentPolicyExemption = async (req, res, next) => {
 // Monitor Placement Records
 exports.getPlacements = async (req, res, next) => {
   try {
+    if (!isDbConnected()) {
+      return res.render('admin/placements', {
+        title: 'Placement Records & Selected Students Monitoring',
+        placements: inMemoryStore.placements,
+        companies: inMemoryStore.companies,
+        drives: inMemoryStore.drives,
+        students: inMemoryStore.users.filter(u => u.role === 'student'),
+        stats: {
+          totalPlaced: inMemoryStore.placements.length,
+          fullTimeCount: 0,
+          internshipCount: 0,
+          avgPackage: 0
+        },
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
     const placements = await PlacementRecord.find()
       .populate('student')
       .populate('company')

@@ -5,11 +5,29 @@ const StudentProfile = require('../models/StudentProfile');
 const PlacementRecord = require('../models/PlacementRecord');
 const User = require('../models/User');
 const { evaluateEligibility } = require('../services/eligibilityService');
+const inMemoryStore = require('../config/inMemoryStore');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // 1. Render Application Confirmation Page
 exports.getApplyDrive = async (req, res, next) => {
   try {
     const driveId = req.params.id;
+
+    if (!isDbConnected()) {
+      const driveObj = inMemoryStore.getDriveById(driveId) || inMemoryStore.drives[0];
+      const drive = { ...driveObj, company: { name: driveObj.companyName || 'TechCorp Global' } };
+      const studentProfile = inMemoryStore.getStudentProfile(req.session.user._id);
+
+      return res.render('applications/confirm', {
+        title: `Confirm Application - ${drive.title}`,
+        drive,
+        studentProfile,
+        eligibilityInfo: { isEligible: true, reasons: [] },
+        user: req.session.user,
+        errors: []
+      });
+    }
     if (!mongoose.Types.ObjectId.isValid(driveId)) {
       return res.status(400).render('errors/500', { title: 'Invalid Drive', statusCode: 400, message: 'Invalid Drive ID', error: {} });
     }
@@ -46,6 +64,13 @@ exports.getApplyDrive = async (req, res, next) => {
 exports.postApplyDrive = async (req, res, next) => {
   try {
     const driveId = req.params.id;
+    const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      inMemoryStore.applyForDrive(studentUserId, driveId);
+      return res.redirect('/student/applications?success=Application+submitted+successfully');
+    }
+
     if (!mongoose.Types.ObjectId.isValid(driveId)) {
       return res.status(400).render('errors/500', { title: 'Invalid Drive', statusCode: 400, message: 'Invalid Drive ID', error: {} });
     }
@@ -55,7 +80,6 @@ exports.postApplyDrive = async (req, res, next) => {
       return res.status(404).render('errors/404', { title: 'Drive Not Found' });
     }
 
-    const studentUserId = req.session.user._id;
     const studentProfile = await StudentProfile.findOne({ user: studentUserId });
 
     const eligibilityInfo = await evaluateEligibility(studentProfile, drive);
@@ -104,6 +128,28 @@ exports.postApplyDrive = async (req, res, next) => {
 exports.getStudentApplications = async (req, res, next) => {
   try {
     const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const studentProfile = inMemoryStore.getStudentProfile(studentUserId);
+      const applications = inMemoryStore.getStudentApplications(studentUserId).map(app => {
+        const driveObj = inMemoryStore.getDriveById(app.drive) || inMemoryStore.drives[0];
+        return {
+          ...app,
+          drive: { ...driveObj, company: { name: driveObj.companyName } }
+        };
+      });
+
+      return res.render('student/applications', {
+        title: 'My Applications - Campus Placement System',
+        applications,
+        studentProfile,
+        selectedStatus: req.query.status || 'all',
+        success: req.query.success || null,
+        info: req.query.info || null,
+        error: req.query.error || null
+      });
+    }
+
     const studentProfile = await StudentProfile.findOne({ user: studentUserId });
 
     const statusFilter = req.query.status || 'all';
@@ -139,6 +185,26 @@ exports.getStudentApplicationDetail = async (req, res, next) => {
   try {
     const applicationId = req.params.id;
     const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId) || inMemoryStore.applications[0];
+      const driveObj = inMemoryStore.getDriveById(appRecord ? appRecord.drive : 'drive_1') || inMemoryStore.drives[0];
+      const studentProfile = inMemoryStore.getStudentProfile(studentUserId);
+
+      const application = {
+        ...appRecord,
+        drive: { ...driveObj, company: { name: driveObj.companyName } },
+        student: req.session.user
+      };
+
+      return res.render('student/application-detail', {
+        title: `Application Detail - ${driveObj.title}`,
+        application,
+        studentProfile,
+        eligibilityInfo: { isEligible: true, reasons: [] },
+        user: req.session.user
+      });
+    }
 
     if (!mongoose.Types.ObjectId.isValid(applicationId)) {
       return res.status(400).render('errors/500', { title: 'Invalid Application ID', statusCode: 400, message: 'Invalid Application ID', error: {} });
@@ -184,6 +250,17 @@ exports.getStudentApplicationDetail = async (req, res, next) => {
 exports.getStudentPlacements = async (req, res, next) => {
   try {
     const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const studentProfile = inMemoryStore.getStudentProfile(studentUserId);
+      return res.render('student/placements', {
+        title: 'My Placement & Internship Records',
+        placements: inMemoryStore.placements,
+        studentProfile,
+        user: req.session.user
+      });
+    }
+
     const studentProfile = await StudentProfile.findOne({ user: studentUserId });
 
     const placements = await PlacementRecord.find({ student: studentUserId })

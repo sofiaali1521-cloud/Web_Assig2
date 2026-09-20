@@ -1,15 +1,49 @@
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const RecruiterProfile = require('../models/RecruiterProfile');
 const Company = require('../models/Company');
 const User = require('../models/User');
 const Drive = require('../models/Drive');
 const Application = require('../models/Application');
 const StudentProfile = require('../models/StudentProfile');
+const inMemoryStore = require('../config/inMemoryStore');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // Render Recruiter Dashboard (Company & Recruiter Scoped Analytics)
 exports.getDashboard = async (req, res, next) => {
   try {
     const recruiterUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getRecruiterProfile(recruiterUserId);
+      const company = inMemoryStore.companies[0];
+      const drives = inMemoryStore.drives;
+
+      return res.render('recruiter/dashboard', {
+        title: 'Recruiter Dashboard - Campus Placement System',
+        profile,
+        company,
+        user: req.session.user,
+        stats: {
+          totalDrives: drives.length,
+          publishedDrives: drives.length,
+          draftDrives: 0,
+          closedDrives: 0,
+          cancelledDrives: 0,
+          totalApplicants: inMemoryStore.applications.length,
+          appliedCount: inMemoryStore.applications.length,
+          shortlistedCount: 0,
+          interviewedCount: 0,
+          selectedCount: 0,
+          rejectedCount: 0,
+          withdrawnCount: 0
+        },
+        recentDrives: drives,
+        recentApplicants: [],
+        upcomingInterviews: []
+      });
+    }
     let profile = await RecruiterProfile.findOne({ user: recruiterUserId })
       .populate('user')
       .populate('company');
@@ -94,6 +128,17 @@ exports.getDashboard = async (req, res, next) => {
 exports.getProfile = async (req, res, next) => {
   try {
     const recruiterUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getRecruiterProfile(recruiterUserId);
+      const company = inMemoryStore.companies[0];
+      return res.render('recruiter/profile', {
+        title: `${req.session.user.name} - Recruiter Profile`,
+        profile: { ...profile, user: req.session.user },
+        company
+      });
+    }
+
     const profile = await RecruiterProfile.findOne({ user: recruiterUserId })
       .populate('user')
       .populate('company');
@@ -116,6 +161,19 @@ exports.getProfile = async (req, res, next) => {
 exports.getEditProfile = async (req, res, next) => {
   try {
     const recruiterUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getRecruiterProfile(recruiterUserId);
+      const company = inMemoryStore.companies[0];
+      return res.render('recruiter/edit-profile', {
+        title: 'Edit Recruiter & Company Profile',
+        profile: { ...profile, user: req.session.user },
+        company,
+        errors: [],
+        success: req.query.success || null
+      });
+    }
+
     const profile = await RecruiterProfile.findOne({ user: recruiterUserId })
       .populate('user')
       .populate('company');

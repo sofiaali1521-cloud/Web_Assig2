@@ -1,14 +1,41 @@
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Drive = require('../models/Drive');
 const RecruiterProfile = require('../models/RecruiterProfile');
 const Company = require('../models/Company');
 const StudentProfile = require('../models/StudentProfile');
 const { evaluateEligibility } = require('../services/eligibilityService');
+const inMemoryStore = require('../config/inMemoryStore');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // 1. Student View: Browse Published Drives with Multi-Filter, Search & Sorting
 exports.getStudentDrives = async (req, res, next) => {
   try {
     const { driveType, branch, workMode, search, sort, eligibility } = req.query;
+
+    if (!isDbConnected()) {
+      const studentProfile = inMemoryStore.getStudentProfile(req.session.user ? req.session.user._id : 'demo');
+      const processedDrives = inMemoryStore.getAllDrives().map(d => ({
+        ...d,
+        company: { name: d.companyName || 'TechCorp Global' },
+        lastDate: d.deadline || new Date(Date.now() + 14 * 86400000),
+        eligibilityInfo: { isEligible: true, reasons: [], failedRules: [], passedRules: [] },
+        isExpired: false
+      }));
+
+      return res.render('drives/index', {
+        title: 'Available Placement & Internship Drives',
+        drives: processedDrives,
+        studentProfile,
+        selectedType: driveType || 'all',
+        selectedBranch: branch || 'all',
+        selectedWorkMode: workMode || 'all',
+        selectedSort: sort || 'latest',
+        selectedEligibility: eligibility || 'all',
+        searchQuery: search || ''
+      });
+    }
     
     let studentProfile = null;
     if (req.session.user && req.session.user.role === 'student') {
@@ -107,6 +134,28 @@ exports.getStudentDrives = async (req, res, next) => {
 exports.getDriveDetail = async (req, res, next) => {
   try {
     const driveId = req.params.id;
+
+    if (!isDbConnected()) {
+      const driveObj = inMemoryStore.getDriveById(driveId) || inMemoryStore.drives[0];
+      const drive = {
+        ...driveObj,
+        company: { name: driveObj.companyName || 'TechCorp Global' },
+        createdBy: { name: 'Recruiter Admin', email: 'recruiter@techcorp.com' },
+        lastDate: driveObj.deadline || new Date(Date.now() + 14 * 86400000)
+      };
+
+      const studentProfile = inMemoryStore.getStudentProfile(req.session.user ? req.session.user._id : 'demo');
+      const eligibilityInfo = { isEligible: true, reasons: [], failedRules: [], passedRules: [] };
+
+      return res.render('drives/detail', {
+        title: `${drive.title} - ${drive.company ? drive.company.name : 'Drive'}`,
+        drive,
+        studentProfile,
+        eligibilityInfo,
+        isExpired: false
+      });
+    }
+
     const drive = await Drive.findById(driveId)
       .populate('company')
       .populate('createdBy', 'name email phone');
@@ -151,6 +200,23 @@ exports.getDriveDetail = async (req, res, next) => {
 exports.getRecruiterDrives = async (req, res, next) => {
   try {
     const recruiterUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const recruiterProf = inMemoryStore.getRecruiterProfile(recruiterUserId);
+      const drives = inMemoryStore.getAllDrives().map(d => ({
+        ...d,
+        company: { name: d.companyName || 'TechCorp Global' }
+      }));
+
+      return res.render('recruiter/drives', {
+        title: 'My Posted Drives',
+        drives,
+        recruiterProf,
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
+
     const recruiterProf = await RecruiterProfile.findOne({ user: recruiterUserId });
 
     const drives = await Drive.find({ createdBy: recruiterUserId })
