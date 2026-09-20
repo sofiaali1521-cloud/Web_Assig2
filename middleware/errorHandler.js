@@ -4,6 +4,11 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || err.status || 500;
   let message = err.message || 'Internal Server Error';
 
+  // Check for MongoDB connection / buffering errors
+  if (err.message && (err.message.includes('buffering timed out') || err.message.includes('Topology is closed') || err.message.includes('before initial connection'))) {
+    message = 'Database Connection Error: Cannot connect to MongoDB. Please add MONGODB_URI (MongoDB Atlas cloud URI) to Vercel Environment Variables and allow Network Access (0.0.0.0/0).';
+  }
+
   // Handle Invalid Mongoose ObjectId Cast Errors
   if (err.name === 'CastError') {
     statusCode = 404;
