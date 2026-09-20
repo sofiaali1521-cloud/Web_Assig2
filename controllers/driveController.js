@@ -239,6 +239,17 @@ exports.getRecruiterDrives = async (req, res, next) => {
 exports.getCreateDrive = async (req, res, next) => {
   try {
     const recruiterUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      return res.render('recruiter/create-drive', {
+        title: 'Post New Placement / Internship Drive',
+        companies: inMemoryStore.companies,
+        companyId: inMemoryStore.companies[0]._id,
+        formData: {},
+        errors: []
+      });
+    }
+
     let companyId = null;
 
     if (req.session.user.role === 'recruiter') {
@@ -280,6 +291,13 @@ exports.postCreateDrive = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     const recruiterUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      inMemoryStore.createDrive(req.body, recruiterUserId);
+      const redirectPath = req.session.user.role === 'admin' ? '/admin/drives' : '/drives/recruiter/manage';
+      return res.redirect(`${redirectPath}?success=Drive+created+successfully`);
+    }
+
     const {
       company,
       title,
@@ -382,7 +400,7 @@ exports.postCreateDrive = async (req, res, next) => {
 
     await newDrive.save();
 
-    const redirectPath = req.session.user.role === 'admin' ? '/drives/admin/manage' : '/drives/recruiter/manage';
+    const redirectPath = req.session.user.role === 'admin' ? '/admin/drives' : '/drives/recruiter/manage';
     return res.redirect(`${redirectPath}?success=Drive+created+successfully`);
   } catch (err) {
     next(err);
@@ -393,6 +411,19 @@ exports.postCreateDrive = async (req, res, next) => {
 exports.getEditDrive = async (req, res, next) => {
   try {
     const driveId = req.params.id;
+
+    if (!isDbConnected()) {
+      const drive = inMemoryStore.getDriveById(driveId) || inMemoryStore.drives[0];
+      return res.render('recruiter/edit-drive', {
+        title: `Edit Drive - ${drive.title}`,
+        drive,
+        companies: inMemoryStore.companies,
+        skillsString: Array.isArray(drive.requiredSkills) ? drive.requiredSkills.join(', ') : '',
+        gradYearsString: Array.isArray(drive.graduationYears) ? drive.graduationYears.join(', ') : '',
+        errors: []
+      });
+    }
+
     const drive = await Drive.findById(driveId);
 
     if (!drive) {
@@ -426,8 +457,14 @@ exports.getEditDrive = async (req, res, next) => {
 // 7. Handle Edit Drive Submission
 exports.postEditDrive = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
     const driveId = req.params.id;
+
+    if (!isDbConnected()) {
+      const redirectPath = req.session.user.role === 'admin' ? '/admin/drives' : '/drives/recruiter/manage';
+      return res.redirect(`${redirectPath}?success=Drive+updated+successfully`);
+    }
+
+    const errors = validationResult(req);
     const drive = await Drive.findById(driveId);
 
     if (!drive) {
@@ -515,7 +552,7 @@ exports.postEditDrive = async (req, res, next) => {
 
     await drive.save();
 
-    const redirectPath = req.session.user.role === 'admin' ? '/drives/admin/manage' : '/drives/recruiter/manage';
+    const redirectPath = req.session.user.role === 'admin' ? '/admin/drives' : '/drives/recruiter/manage';
     return res.redirect(`${redirectPath}?success=Drive+updated+successfully`);
   } catch (err) {
     next(err);
@@ -527,6 +564,14 @@ exports.updateDriveStatus = async (req, res, next) => {
   try {
     const driveId = req.params.id;
     const { status } = req.body;
+
+    if (!isDbConnected()) {
+      const drive = inMemoryStore.getDriveById(driveId);
+      if (drive) drive.status = status;
+      const redirectPath = req.session.user.role === 'admin' ? '/admin/drives' : '/drives/recruiter/manage';
+      return res.redirect(`${redirectPath}?success=Drive+status+updated+to+${status}`);
+    }
+
     const drive = await Drive.findById(driveId);
 
     if (!drive) {
@@ -548,7 +593,7 @@ exports.updateDriveStatus = async (req, res, next) => {
     drive.status = status;
     await drive.save();
 
-    const redirectPath = req.session.user.role === 'admin' ? '/drives/admin/manage' : '/drives/recruiter/manage';
+    const redirectPath = req.session.user.role === 'admin' ? '/admin/drives' : '/drives/recruiter/manage';
     return res.redirect(`${redirectPath}?success=Drive+status+updated+to+${status}`);
   } catch (err) {
     next(err);
@@ -559,6 +604,23 @@ exports.updateDriveStatus = async (req, res, next) => {
 exports.getAdminDrives = async (req, res, next) => {
   try {
     const { status } = req.query;
+
+    if (!isDbConnected()) {
+      const drives = inMemoryStore.getAllDrives().map(d => ({
+        ...d,
+        company: { name: d.companyName || 'TechCorp Global' },
+        createdBy: { name: 'Recruiter Admin', email: 'recruiter@techcorp.com' }
+      }));
+
+      return res.render('admin/drives', {
+        title: 'Placement Drive Management - Admin Control',
+        drives,
+        selectedStatus: status || 'all',
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
+
     let filter = {};
     if (status && status !== 'all') {
       filter.status = status;
