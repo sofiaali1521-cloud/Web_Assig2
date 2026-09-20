@@ -41,14 +41,29 @@ const recruiterRegisterValidation = [
   body('designation').trim().notEmpty().withMessage('Designation is required')
 ];
 
+const adminRegisterValidation = [
+  body('name').trim().notEmpty().withMessage('Full name is required'),
+  body('email').trim().isEmail().withMessage('Please enter a valid email address'),
+  body('adminKey').trim().notEmpty().withMessage('Admin security key is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  body('confirmPassword').custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error('Passwords do not match');
+    }
+    return true;
+  })
+];
+
 // Routes
 router.get('/login', authController.getLogin);
 router.post('/login', loginValidation, authController.postLogin);
 
+// Registration Role Selection
+router.get('/register', authController.getRegisterSelect);
+router.get('/register/select', authController.getRegisterSelect);
+
 // Student Registration Routes
-router.get('/register', authController.getStudentRegister);
 router.get('/register/student', authController.getStudentRegister);
-router.post('/register', studentRegisterValidation, authController.postStudentRegister);
 router.post('/register/student', studentRegisterValidation, authController.postStudentRegister);
 
 // Recruiter Registration Routes
@@ -56,6 +71,10 @@ router.get('/recruiter/register', authController.getRecruiterRegister);
 router.get('/register/recruiter', authController.getRecruiterRegister);
 router.post('/recruiter/register', recruiterRegisterValidation, authController.postRecruiterRegister);
 router.post('/register/recruiter', recruiterRegisterValidation, authController.postRecruiterRegister);
+
+// Admin Registration Routes
+router.get('/register/admin', authController.getAdminRegister);
+router.post('/register/admin', adminRegisterValidation, authController.postAdminRegister);
 
 router.get('/logout', authController.logout);
 router.post('/logout', authController.logout);

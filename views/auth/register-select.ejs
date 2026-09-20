@@ -1,0 +1,71 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="max-width: 820px; margin: 2.5rem auto; text-align: center;">
+    <h2 style="font-size: 2rem; color: var(--text-color); margin-bottom: 0.5rem; font-weight: 700;">
+      Choose Account Type
+    </h2>
+    <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 2.5rem;">
+      Select how you would like to register with the Campus Placement Portal
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; text-align: left;">
+      
+      <!-- Student Card -->
+      <div style="background: var(--surface-color); border: 2px solid var(--border-color); border-radius: 14px; padding: 1.8rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s ease, border-color 0.2s ease;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='translateY(0)';">
+        <div>
+          <div style="font-size: 2.8rem; margin-bottom: 1rem;">🎓</div>
+          <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-color); font-weight: 700;">
+            Student
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Apply for placement & internship drives, build your profile, track application status, and view placement records.
+          </p>
+        </div>
+        <a href="/auth/register/student" class="btn btn-primary" style="width: 100%; text-align: center; padding: 0.75rem; font-weight: 600; border-radius: 8px; text-decoration: none;">
+          Register as Student →
+        </a>
+      </div>
+
+      <!-- Recruiter Card -->
+      <div style="background: var(--surface-color); border: 2px solid var(--border-color); border-radius: 14px; padding: 1.8rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s ease, border-color 0.2s ease;" onmouseover="this.style.borderColor='var(--secondary-color)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='translateY(0)';">
+        <div>
+          <div style="font-size: 2.8rem; margin-bottom: 1rem;">👔</div>
+          <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-color); font-weight: 700;">
+            Recruiter
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Post campus hiring drives, manage company profiles, review student applications, and shortlist candidates.
+          </p>
+        </div>
+        <a href="/auth/register/recruiter" class="btn btn-secondary" style="width: 100%; text-align: center; padding: 0.75rem; font-weight: 600; border-radius: 8px; text-decoration: none;">
+          Register as Recruiter →
+        </a>
+      </div>
+
+      <!-- Admin Card -->
+      <div style="background: var(--surface-color); border: 2px solid var(--border-color); border-radius: 14px; padding: 1.8rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s ease, border-color 0.2s ease;" onmouseover="this.style.borderColor='#6366f1'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='translateY(0)';">
+        <div>
+          <div style="font-size: 2.8rem; margin-bottom: 1rem;">🛡️</div>
+          <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-color); font-weight: 700;">
+            TPO Admin
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Head of Training & Placement Cell. Oversee placement drives, verify recruiters, manage students & analytics.
+          </p>
+        </div>
+        <a href="/auth/register/admin" class="btn" style="width: 100%; text-align: center; padding: 0.75rem; font-weight: 600; border-radius: 8px; background: #6366f1; color: #ffffff; text-decoration: none;">
+          Register as Admin →
+        </a>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 2.5rem; color: var(--text-muted); font-size: 0.9rem;">
+      Already have an account? 
+      <a href="/auth/login" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Sign In Here</a>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

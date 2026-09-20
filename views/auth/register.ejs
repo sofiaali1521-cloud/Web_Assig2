@@ -15,7 +15,7 @@
       </div>
     <% } %>
 
-    <form action="/auth/register" method="POST">
+    <form action="/auth/register/student" method="POST">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
           <label style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem;">Full Name *</label>
@@ -82,7 +82,8 @@
     </form>
 
     <div style="margin-top: 1.5rem; text-align: center; font-size: 0.88rem; color: var(--text-muted);">
-      Already have an account? <a href="/auth/login" style="color: var(--primary-color); font-weight: 600;">Sign In</a>
+      Already have an account? <a href="/auth/login" style="color: var(--primary-color); font-weight: 600;">Sign In</a> | 
+      <a href="/auth/register" style="color: var(--text-muted); font-weight: 500;">Change Account Type</a>
     </div>
   </div>
 </main>

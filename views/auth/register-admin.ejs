@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+  <div style="max-width: 580px; margin: 2rem auto; background: var(--surface-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+    <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--text-color);">🛡️ TPO Admin Registration</h2>
+    <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Register a Head Training & Placement Officer (TPO) Account</p>
+
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+      <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;">
+        <ul style="margin-left: 1.2rem; margin-top: 0; margin-bottom: 0;">
+          <% errors.forEach(err => { %>
+            <li><%= err.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/auth/register/admin" method="POST">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label for="admin-name" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Full Name *</label>
+          <input type="text" id="admin-name" name="name" value="<%= typeof formData !== 'undefined' && formData.name ? formData.name : '' %>" required placeholder="Dr. Alex Morgan" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label for="admin-email" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Official Email *</label>
+          <input type="email" id="admin-email" name="email" value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>" required placeholder="tpo@college.edu" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label for="admin-phone" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Phone Number</label>
+          <input type="text" id="admin-phone" name="phone" value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>" placeholder="+91 9876543210" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label for="admin-key" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Admin Security Key *</label>
+          <input type="password" id="admin-key" name="adminKey" value="<%= typeof formData !== 'undefined' && formData.adminKey ? formData.adminKey : '' %>" required placeholder="Default: Admin@123456" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <label for="admin-pass" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Password *</label>
+          <input type="password" id="admin-pass" name="password" required placeholder="••••••••" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+        <div>
+          <label for="admin-confpass" style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: var(--text-color);">Confirm Password *</label>
+          <input type="password" id="admin-confpass" name="confirmPassword" required placeholder="••••••••" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--surface-color); color: var(--text-color);">
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; background: #6366f1; color: #fff; border: none; padding: 0.85rem; font-size: 1rem; font-weight: 600; border-radius: 6px; cursor: pointer;">
+        Create TPO Admin Account
+      </button>
+    </form>
+
+    <div style="margin-top: 1.2rem; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; background: rgba(99, 102, 241, 0.04); font-size: 0.82rem; color: var(--text-muted); text-align: center;">
+      ℹ️ Admin Passcode is <code style="background: rgba(0,0,0,0.06); padding: 0.15rem 0.4rem; border-radius: 4px; color: var(--text-color); font-weight: 600;">Admin@123456</code> (or set via <code>ADMIN_SECRET</code> in <code>.env</code>).
+    </div>
+
+    <div style="margin-top: 1.5rem; text-align: center; font-size: 0.88rem; color: var(--text-muted);">
+      Or change account type: <a href="/auth/register" style="color: var(--primary-color); font-weight: 600;">Back to Selection</a>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

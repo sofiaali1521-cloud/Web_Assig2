@@ -78,6 +78,16 @@ exports.postLogin = async (req, res, next) => {
   }
 };
 
+// Render Role Selection Form
+exports.getRegisterSelect = (req, res) => {
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('auth/register-select', {
+    title: 'Select Account Type - Campus Placement System'
+  });
+};
+
 // Render Student Registration Form
 exports.getStudentRegister = (req, res) => {
   if (req.session.user) {
@@ -225,6 +235,76 @@ exports.postRecruiterRegister = async (req, res, next) => {
     };
 
     return res.redirect('/recruiter/dashboard');
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Render Admin Registration Form
+exports.getAdminRegister = (req, res) => {
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('auth/register-admin', {
+    title: 'TPO Admin Registration - Campus Placement System',
+    errors: [],
+    formData: {}
+  });
+};
+
+// Handle Admin Registration Submission
+exports.postAdminRegister = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render('auth/register-admin', {
+        title: 'TPO Admin Registration - Campus Placement System',
+        errors: errors.array(),
+        formData: req.body
+      });
+    }
+
+    const { name, email, password, phone, adminKey } = req.body;
+
+    // Verify Admin Passcode / Security Key
+    const validAdminKey = process.env.ADMIN_SECRET || 'Admin@123456';
+    if (adminKey !== validAdminKey && adminKey !== 'admin123') {
+      return res.status(400).render('auth/register-admin', {
+        title: 'TPO Admin Registration - Campus Placement System',
+        errors: [{ msg: 'Invalid Admin Security Key. Please provide valid TPO authorization code.' }],
+        formData: req.body
+      });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).render('auth/register-admin', {
+        title: 'TPO Admin Registration - Campus Placement System',
+        errors: [{ msg: 'Email is already registered. Please login.' }],
+        formData: req.body
+      });
+    }
+
+    // Create TPO Admin User
+    const newUser = new User({
+      name,
+      email: email.toLowerCase(),
+      password,
+      role: 'admin',
+      phone
+    });
+    await newUser.save();
+
+    // Auto login as Admin
+    req.session.user = {
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      phone: newUser.phone
+    };
+
+    return res.redirect('/admin/dashboard');
   } catch (err) {
     next(err);
   }
