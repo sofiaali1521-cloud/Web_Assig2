@@ -70,7 +70,8 @@ class InMemoryStore {
         cgpa: 8.8,
         phone: '+91 9876500001',
         skills: ['JavaScript', 'Node.js', 'React', 'Python'],
-        resumeUrl: ''
+        resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        resumeLink: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
       }
     ];
 
@@ -198,10 +199,15 @@ class InMemoryStore {
         graduationYear: 2026,
         cgpa: 8.5,
         phone: user ? user.phone : '',
-        skills: ['JavaScript', 'Node.js', 'Express'],
-        resumeUrl: ''
+        skills: ['JavaScript', 'Node.js', 'Express', 'React', 'Python'],
+        resumeUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        resumeLink: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
       };
       this.studentProfiles.push(profile);
+    }
+    if (!profile.resumeLink && !profile.resumeUrl) {
+      profile.resumeLink = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+      profile.resumeUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
     }
     return profile;
   }

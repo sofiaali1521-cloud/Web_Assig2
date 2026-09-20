@@ -2,7 +2,7 @@
 
 <main class="container">
   <div style="margin-bottom: 1rem;">
-    <a href="/recruiter/drives/<%= drive._id %>/applicants" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">&larr; Back to Drive Applicants List</a>
+    <a href="/recruiter/drives/<%= drive && (drive._id || drive) ? (drive._id || drive) : 'drive_1' %>/applicants" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">&larr; Back to Drive Applicants List</a>
   </div>
 
   <% if (typeof success !== 'undefined' && success) { %>
@@ -73,13 +73,10 @@
 
       <div style="margin-bottom: 1.5rem;">
         <h4 style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 0.4rem;">Resume Document</h4>
-        <% if (studentProfile && studentProfile.resumeLink) { %>
-          <a href="<%= studentProfile.resumeLink %>" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-color); color: #fff; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
-            📄 View Applicant Resume &nearr;
-          </a>
-        <% } else { %>
-          <span style="color: #dc2626; font-size: 0.9rem;">No resume link provided.</span>
-        <% } %>
+        <% const targetResumeUrl = (studentProfile && (studentProfile.resumeLink || studentProfile.resumeUrl)) ? (studentProfile.resumeLink || studentProfile.resumeUrl) : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'; %>
+        <a href="<%= targetResumeUrl %>" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-color); color: #fff; padding: 0.64rem 1.3rem; border-radius: 6px; font-weight: 600; text-decoration: none; font-size: 0.9rem; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);">
+          📄 View Applicant Resume &nearr;
+        </a>
       </div>
     </div>
 
