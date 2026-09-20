@@ -139,9 +139,21 @@ exports.getDriveDetail = async (req, res, next) => {
       const driveObj = inMemoryStore.getDriveById(driveId) || inMemoryStore.drives[0];
       const drive = {
         ...driveObj,
-        company: { name: driveObj.companyName || 'TechCorp Global' },
+        title: driveObj.title || 'Placement Drive',
+        role: driveObj.role || 'Software Engineer',
+        description: driveObj.description || driveObj.jobDescription || 'Role description and selection process details.',
+        package: driveObj.package !== undefined ? driveObj.package : 14.5,
+        stipend: driveObj.stipend !== undefined ? driveObj.stipend : 0,
+        minimumCGPA: driveObj.minimumCGPA !== undefined ? driveObj.minimumCGPA : (driveObj.minCgpa !== undefined ? driveObj.minCgpa : 7.5),
+        eligibleBranches: driveObj.eligibleBranches || ['Computer Science', 'Information Technology'],
+        graduationYears: driveObj.graduationYears || [2026, 2027],
+        requiredSkills: driveObj.requiredSkills || ['JavaScript', 'Node.js'],
+        driveType: driveObj.driveType || 'placement',
+        workMode: driveObj.workMode || 'hybrid',
+        location: driveObj.location || 'Bangalore / Remote',
+        company: typeof driveObj.company === 'object' ? driveObj.company : { name: driveObj.companyName || 'TechCorp Global', description: 'Leading corporate tech partner.', website: 'https://example.com' },
         createdBy: { name: 'Recruiter Admin', email: 'recruiter@techcorp.com' },
-        lastDate: driveObj.deadline || new Date(Date.now() + 14 * 86400000)
+        lastDate: driveObj.lastDate || driveObj.deadline || new Date(Date.now() + 14 * 86400000)
       };
 
       const studentProfile = inMemoryStore.getStudentProfile(req.session.user ? req.session.user._id : 'demo');

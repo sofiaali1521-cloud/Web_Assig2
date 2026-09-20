@@ -201,8 +201,12 @@ exports.updateProfile = async (req, res, next) => {
     const recruiterUserId = req.session.user._id;
     const { name, designation, phone, countryCode, phoneNumber, website, industry, description, location, logo } = req.body;
 
-    const profile = await RecruiterProfile.findOne({ user: recruiterUserId })
-      .populate('company');
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getRecruiterProfile(recruiterUserId);
+      profile.designation = designation ? designation.trim() : 'HR Specialist';
+      req.session.user.name = name ? name.trim() : req.session.user.name;
+      return res.redirect('/recruiter/profile?success=Profile+and+company+information+updated+successfully');
+    }
 
     if (!profile) {
       return res.redirect('/auth/login');

@@ -154,6 +154,17 @@ exports.getDashboard = async (req, res, next) => {
 exports.getProfile = async (req, res, next) => {
   try {
     const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getStudentProfile(studentUserId);
+      const completion = calculateCompletionStatus(profile);
+      return res.render('student/profile', {
+        title: `${profile.fullName} - Student Profile`,
+        profile,
+        completion
+      });
+    }
+
     let profile = await StudentProfile.findOne({ user: studentUserId });
 
     if (!profile) {
@@ -176,6 +187,18 @@ exports.getProfile = async (req, res, next) => {
 exports.getEditProfile = async (req, res, next) => {
   try {
     const studentUserId = req.session.user._id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.getStudentProfile(studentUserId);
+      return res.render('student/edit-profile', {
+        title: 'Edit Student Profile',
+        profile,
+        skillsString: Array.isArray(profile.skills) ? profile.skills.join(', ') : '',
+        errors: [],
+        success: req.query.success || null
+      });
+    }
+
     let profile = await StudentProfile.findOne({ user: studentUserId });
 
     if (!profile) {
@@ -241,6 +264,27 @@ exports.updateProfile = async (req, res, next) => {
         errors: errors.array(),
         success: null
       });
+    }
+
+    if (!isDbConnected()) {
+      let profileData = {
+        fullName: fullName.trim(),
+        collegeId: collegeId.trim(),
+        branch: branch.trim(),
+        course: course.trim(),
+        graduationYear: parseInt(graduationYear),
+        cgpa: parseFloat(cgpa),
+        skills: parsedSkills,
+        resumeLink: resumeLink ? resumeLink.trim() : '',
+        phone: finalPhone
+      };
+      if (req.file) {
+        profileData.resumeLink = `/uploads/resumes/${req.file.filename}`;
+      }
+      inMemoryStore.updateStudentProfile(studentUserId, profileData);
+      req.session.user.name = profileData.fullName;
+      req.session.user.phone = profileData.phone;
+      return res.redirect('/student/profile?success=Profile+updated+successfully');
     }
 
     let profile = await StudentProfile.findOne({ user: studentUserId });

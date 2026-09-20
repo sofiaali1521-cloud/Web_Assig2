@@ -91,14 +91,23 @@ class InMemoryStore {
         company: 'comp_1',
         companyName: 'TechCorp Global',
         role: 'Full Stack Engineer',
+        driveType: 'placement',
+        description: 'Design, develop, and deploy cloud-native scalable web applications.',
         jobDescription: 'Design, develop, and deploy cloud-native scalable web applications.',
+        package: 14.5,
+        stipend: 0,
         ctc: '14.5 LPA',
         location: 'Bangalore / Remote',
+        workMode: 'hybrid',
+        minimumCGPA: 7.5,
         minCgpa: 7.5,
         eligibleBranches: ['Computer Science', 'Information Technology', 'Electronics'],
         eligibleCourses: ['B.Tech', 'M.Tech', 'MCA'],
+        requiredSkills: ['JavaScript', 'Node.js', 'React', 'Python'],
+        graduationYears: [2026, 2027],
+        lastDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
         deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        status: 'Active',
+        status: 'published',
         createdBy: 'recruiter_demo_id',
         createdAt: new Date()
       },
@@ -108,14 +117,23 @@ class InMemoryStore {
         company: 'comp_2',
         companyName: 'InnovateX Labs',
         role: 'Data Scientist Trainee',
+        driveType: 'internship',
+        description: 'Build machine learning pipelines and statistical models.',
         jobDescription: 'Build machine learning pipelines and statistical models.',
+        package: 0,
+        stipend: 35000,
         ctc: '12.0 LPA',
         location: 'Hyderabad / Pune',
+        workMode: 'on-site',
+        minimumCGPA: 8.0,
         minCgpa: 8.0,
         eligibleBranches: ['Computer Science', 'AI & ML', 'Data Science'],
         eligibleCourses: ['B.Tech', 'M.Tech'],
+        requiredSkills: ['Python', 'SQL', 'TensorFlow', 'Data Analysis'],
+        graduationYears: [2026],
+        lastDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
         deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
-        status: 'Active',
+        status: 'published',
         createdBy: 'recruiter_demo_id',
         createdAt: new Date()
       }
@@ -237,20 +255,39 @@ class InMemoryStore {
 
   createDrive(driveData, userId) {
     const comp = this.findOrCreateCompany(driveData.companyName || 'Corporate Partner');
+    const parsedBranches = Array.isArray(driveData.eligibleBranches)
+      ? driveData.eligibleBranches
+      : typeof driveData.eligibleBranches === 'string' ? driveData.eligibleBranches.split(',').map(b => b.trim()).filter(b => b.length > 0) : ['Computer Science'];
+    const parsedSkills = typeof driveData.requiredSkills === 'string'
+      ? driveData.requiredSkills.split(',').map(s => s.trim()).filter(s => s.length > 0)
+      : (Array.isArray(driveData.requiredSkills) ? driveData.requiredSkills : []);
+    const parsedGradYears = typeof driveData.graduationYears === 'string'
+      ? driveData.graduationYears.split(',').map(y => parseInt(y.trim())).filter(y => !isNaN(y))
+      : (Array.isArray(driveData.graduationYears) ? driveData.graduationYears : [2026]);
+
     const newDrive = {
       _id: 'drive_' + Date.now(),
       title: driveData.title,
       company: comp._id,
       companyName: comp.name,
       role: driveData.role || driveData.title,
-      jobDescription: driveData.jobDescription || '',
-      ctc: driveData.ctc || 'Negotiable',
+      driveType: driveData.driveType || 'placement',
+      description: driveData.description || driveData.jobDescription || 'Drive details and role description.',
+      jobDescription: driveData.description || driveData.jobDescription || 'Drive details and role description.',
+      package: driveData.package ? parseFloat(driveData.package) : 0,
+      stipend: driveData.stipend ? parseFloat(driveData.stipend) : 0,
+      ctc: driveData.ctc || (driveData.package ? `${driveData.package} LPA` : 'Negotiable'),
       location: driveData.location || 'Multiple Locations',
-      minCgpa: driveData.minCgpa ? parseFloat(driveData.minCgpa) : 0,
-      eligibleBranches: Array.isArray(driveData.eligibleBranches) ? driveData.eligibleBranches : [driveData.eligibleBranches || 'All Branches'],
+      workMode: driveData.workMode || 'on-site',
+      minimumCGPA: driveData.minimumCGPA ? parseFloat(driveData.minimumCGPA) : (driveData.minCgpa ? parseFloat(driveData.minCgpa) : 0),
+      minCgpa: driveData.minimumCGPA ? parseFloat(driveData.minimumCGPA) : (driveData.minCgpa ? parseFloat(driveData.minCgpa) : 0),
+      eligibleBranches: parsedBranches,
       eligibleCourses: Array.isArray(driveData.eligibleCourses) ? driveData.eligibleCourses : [driveData.eligibleCourses || 'B.Tech'],
-      deadline: driveData.deadline ? new Date(driveData.deadline) : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      status: 'Active',
+      requiredSkills: parsedSkills,
+      graduationYears: parsedGradYears,
+      lastDate: driveData.lastDate ? new Date(driveData.lastDate) : (driveData.deadline ? new Date(driveData.deadline) : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
+      deadline: driveData.lastDate ? new Date(driveData.lastDate) : (driveData.deadline ? new Date(driveData.deadline) : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
+      status: driveData.status || 'published',
       createdBy: userId,
       createdAt: new Date()
     };

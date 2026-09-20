@@ -285,6 +285,12 @@ exports.withdrawApplication = async (req, res, next) => {
     const applicationId = req.params.id;
     const studentUserId = req.session.user._id;
 
+    if (!isDbConnected()) {
+      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId);
+      if (appRecord) appRecord.status = 'withdrawn';
+      return res.redirect('/student/applications?success=Application+withdrawn+successfully');
+    }
+
     const appRecord = await Application.findOne({ _id: applicationId, student: studentUserId });
     if (!appRecord) {
       return res.redirect('/student/applications?error=Application+record+not+found');
@@ -307,6 +313,31 @@ exports.withdrawApplication = async (req, res, next) => {
 exports.getDriveApplicants = async (req, res, next) => {
   try {
     const driveId = req.params.driveId;
+
+    if (!isDbConnected()) {
+      const driveObj = inMemoryStore.getDriveById(driveId) || inMemoryStore.drives[0];
+      const drive = { ...driveObj, company: { name: driveObj.companyName || 'TechCorp Global' } };
+      const applications = inMemoryStore.applications.map(app => {
+        const studentUser = inMemoryStore.findUserById(app.student) || { _id: app.student, name: 'Alex Johnson', email: 'user@college.edu' };
+        const profile = inMemoryStore.getStudentProfile(app.student);
+        return {
+          ...app,
+          student: studentUser,
+          profile
+        };
+      });
+
+      return res.render('recruiter/applicants', {
+        title: `Applicants - ${drive.title}`,
+        drive,
+        applicants: applications,
+        selectedStatus: req.query.status || 'all',
+        searchQuery: req.query.search || '',
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
+
     const drive = await Drive.findById(driveId).populate('company');
 
     if (!drive) {
@@ -379,6 +410,29 @@ exports.getDriveApplicants = async (req, res, next) => {
 exports.getApplicantDetail = async (req, res, next) => {
   try {
     const applicationId = req.params.id;
+
+    if (!isDbConnected()) {
+      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId) || inMemoryStore.applications[0];
+      const driveObj = inMemoryStore.getDriveById(appRecord ? appRecord.drive : 'drive_1') || inMemoryStore.drives[0];
+      const studentUser = inMemoryStore.findUserById(appRecord ? appRecord.student : 'student_demo_id') || inMemoryStore.users[1];
+      const studentProfile = inMemoryStore.getStudentProfile(studentUser._id);
+
+      const application = {
+        ...appRecord,
+        drive: { ...driveObj, company: { name: driveObj.companyName } },
+        student: studentUser
+      };
+
+      return res.render('recruiter/applicant-detail', {
+        title: `Applicant - ${studentUser.name}`,
+        application,
+        drive: application.drive,
+        studentProfile,
+        errors: [],
+        success: req.query.success || null
+      });
+    }
+
     const application = await Application.findById(applicationId)
       .populate('student')
       .populate({
@@ -415,6 +469,16 @@ exports.updateApplicantStatus = async (req, res, next) => {
   try {
     const applicationId = req.params.id;
     const { status, screeningNotes, interviewDate, rejectionReason } = req.body;
+
+    if (!isDbConnected()) {
+      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId);
+      if (appRecord) {
+        appRecord.status = status;
+        if (screeningNotes) appRecord.screeningNotes = screeningNotes;
+        if (rejectionReason) appRecord.rejectionReason = rejectionReason;
+      }
+      return res.redirect(`/recruiter/applications/${applicationId}?success=Applicant+status+updated+to+${status}`);
+    }
 
     const application = await Application.findById(applicationId).populate('drive');
     if (!application) {
