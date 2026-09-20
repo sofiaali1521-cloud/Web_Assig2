@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const RecruiterProfile = require('../models/RecruiterProfile');
 const StudentProfile = require('../models/StudentProfile');
 const Company = require('../models/Company');
@@ -6,10 +7,38 @@ const Drive = require('../models/Drive');
 const Application = require('../models/Application');
 const PlacementRecord = require('../models/PlacementRecord');
 const eligibilityService = require('../services/eligibilityService');
+const inMemoryStore = require('../config/inMemoryStore');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 // Render Admin Dashboard Overview with Master Aggregation Statistics
 exports.getDashboard = async (req, res, next) => {
   try {
+    if (!isDbConnected()) {
+      return res.render('admin/dashboard', {
+        title: 'Admin & TPO Dashboard - Campus Placement System',
+        stats: {
+          totalStudents: inMemoryStore.users.filter(u => u.role === 'student').length,
+          totalRecruiters: inMemoryStore.users.filter(u => u.role === 'recruiter').length,
+          pendingRecruiters: inMemoryStore.recruiterProfiles.filter(r => !r.verified).length,
+          verifiedRecruiters: inMemoryStore.recruiterProfiles.filter(r => r.verified).length,
+          totalCompanies: inMemoryStore.companies.length,
+          totalDrives: inMemoryStore.drives.length,
+          activeDrives: inMemoryStore.drives.filter(d => d.status === 'Active').length,
+          placementDrives: inMemoryStore.drives.length,
+          internshipDrives: 0,
+          totalApplications: inMemoryStore.applications.length,
+          placedStudentsCount: inMemoryStore.placements.length,
+          unplacedStudentsCount: inMemoryStore.users.filter(u => u.role === 'student').length
+        },
+        aggregations: {
+          branchPlacements: [],
+          companyPlacements: [],
+          applicationStatus: [],
+          driveApplications: []
+        }
+      });
+    }
     const totalStudents = await User.countDocuments({ role: 'student' });
     const totalRecruiters = await User.countDocuments({ role: 'recruiter' });
     const pendingRecruiters = await RecruiterProfile.countDocuments({ verified: false });
@@ -89,8 +118,24 @@ exports.getDashboard = async (req, res, next) => {
 exports.getRecruiters = async (req, res, next) => {
   try {
     const statusFilter = req.query.status || 'all';
-    let queryFilter = {};
 
+    if (!isDbConnected()) {
+      const recruiters = inMemoryStore.recruiterProfiles.map(rp => ({
+        ...rp,
+        user: inMemoryStore.findUserById(rp.user) || { name: 'Recruiter', email: 'recruiter@techcorp.com', isActive: true },
+        company: inMemoryStore.companies.find(c => c._id === rp.company) || { name: 'TechCorp Global' }
+      }));
+
+      return res.render('admin/recruiters', {
+        title: 'Recruiter Verification & Management',
+        recruiters,
+        statusFilter,
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
+
+    let queryFilter = {};
     if (statusFilter === 'pending') {
       queryFilter = { verified: false };
     } else if (statusFilter === 'verified') {
@@ -118,6 +163,13 @@ exports.getRecruiters = async (req, res, next) => {
 exports.verifyRecruiter = async (req, res, next) => {
   try {
     const recruiterProfileId = req.params.id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.recruiterProfiles.find(r => r._id === recruiterProfileId);
+      if (profile) profile.verified = true;
+      return res.redirect('/admin/recruiters?success=Recruiter+verified+successfully');
+    }
+
     const profile = await RecruiterProfile.findById(recruiterProfileId);
 
     if (!profile) {
@@ -137,6 +189,13 @@ exports.verifyRecruiter = async (req, res, next) => {
 exports.rejectRecruiter = async (req, res, next) => {
   try {
     const recruiterProfileId = req.params.id;
+
+    if (!isDbConnected()) {
+      const profile = inMemoryStore.recruiterProfiles.find(r => r._id === recruiterProfileId);
+      if (profile) profile.verified = false;
+      return res.redirect('/admin/recruiters?success=Recruiter+verification+rejected/revoked');
+    }
+
     const profile = await RecruiterProfile.findById(recruiterProfileId);
 
     if (!profile) {
@@ -156,6 +215,13 @@ exports.rejectRecruiter = async (req, res, next) => {
 exports.toggleUserStatus = async (req, res, next) => {
   try {
     const userId = req.params.id;
+
+    if (!isDbConnected()) {
+      const user = inMemoryStore.findUserById(userId);
+      if (user) user.isActive = !user.isActive;
+      return res.redirect('/admin/recruiters?success=User+account+updated+successfully');
+    }
+
     const user = await User.findById(userId);
 
     if (!user) {
@@ -178,6 +244,23 @@ exports.toggleUserStatus = async (req, res, next) => {
 exports.getDrives = async (req, res, next) => {
   try {
     const { driveType, status, company, search } = req.query;
+
+    if (!isDbConnected()) {
+      const drives = inMemoryStore.getAllDrives().map(d => ({
+        ...d,
+        company: { name: d.companyName || 'TechCorp Global' },
+        createdBy: { name: 'Recruiter Admin', email: 'recruiter@techcorp.com' }
+      }));
+
+      return res.render('admin/drives', {
+        title: 'Drive Oversight & Management',
+        drives,
+        companies: inMemoryStore.companies,
+        filters: { driveType: driveType || '', status: status || '', company: company || '', search: search || '' },
+        success: req.query.success || null,
+        error: req.query.error || null
+      });
+    }
     const query = {};
 
     if (driveType) {
