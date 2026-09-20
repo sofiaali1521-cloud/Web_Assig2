@@ -18,10 +18,9 @@ const applicationRoutes = require('./routes/applicationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/placement_management_db';
 
-// Connect to MongoDB Database
-connectDB();
+// Enable proxy trust for Vercel / reverse proxies
+app.set('trust proxy', 1);
 
 // Configure View Engine (EJS)
 app.set('view engine', 'ejs');
@@ -38,21 +37,36 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serverless DB Connection Middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('Serverless DB middleware connection error:', err);
+  }
+  next();
+});
+
 // Configure Session Management
+let sessionStore;
+if (process.env.MONGODB_URI) {
+  sessionStore = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60 // 1 day session TTL
+  });
+}
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'super_secret_placement_key_2026',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: MONGODB_URI,
-      collectionName: 'sessions',
-      ttl: 24 * 60 * 60 // 1 day session TTL
-    }),
+    store: sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production'
+      secure: process.env.NODE_ENV === 'production' && process.env.VERCEL !== undefined
     }
   })
 );

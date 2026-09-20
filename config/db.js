@@ -1,17 +1,28 @@
 const mongoose = require('mongoose');
 
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected || mongoose.connection.readyState >= 1) {
+    return;
+  }
+
   try {
-    const connStr = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/placement_management_db';
-    const conn = await mongoose.connect(connStr);
+    const connStr = process.env.MONGODB_URI;
+    if (!connStr) {
+      console.warn('[Database Warning] MONGODB_URI environment variable is not defined. Skipping MongoDB connection.');
+      return;
+    }
+
+    const conn = await mongoose.connect(connStr, {
+      serverSelectionTimeoutMS: 5000 // 5-second connection timeout
+    });
+    isConnected = true;
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {
     console.error(`[Database Error] Connection failed: ${error.message}`);
-    // Non-fatal warning log if DB connection fails on startup during dev/offline mode
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
+    // Do NOT call process.exit(1) in serverless environment to prevent FUNCTION_INVOCATION_FAILED
   }
 };
 
