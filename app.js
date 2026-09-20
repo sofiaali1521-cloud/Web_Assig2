@@ -47,16 +47,26 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Cloud MongoDB Atlas fallback for Vercel deployment
-const CLOUD_MONGODB_FALLBACK = 'mongodb+srv://placement_demo_user:Placement2026Secure@cluster0.p7xve.mongodb.net/placement_system_db?retryWrites=true&w=majority';
-const mongoSessionUri = process.env.MONGODB_URI || CLOUD_MONGODB_FALLBACK;
-
 // Configure Session Management
-const sessionStore = MongoStore.create({
-  mongoUrl: mongoSessionUri,
-  collectionName: 'sessions',
-  ttl: 24 * 60 * 60 // 1 day session TTL
-});
+let sessionStore;
+if (process.env.MONGODB_URI) {
+  try {
+    sessionStore = MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: 'sessions',
+      ttl: 24 * 60 * 60 // 1 day session TTL
+    });
+    sessionStore.on('error', (err) => {
+      console.error('[Session Store Error] MongoStore issue:', err.message);
+    });
+  } catch (err) {
+    console.error('[Session Store Error] Failed to initialize MongoStore, falling back to MemoryStore:', err.message);
+    sessionStore = new session.MemoryStore();
+  }
+} else {
+  console.log('[Session Store] MONGODB_URI not set. Operating with standard MemoryStore for sessions.');
+  sessionStore = new session.MemoryStore();
+}
 
 app.use(
   session({
