@@ -47,15 +47,16 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Cloud MongoDB Atlas fallback for Vercel deployment
+const CLOUD_MONGODB_FALLBACK = 'mongodb+srv://placement_demo_user:Placement2026Secure@cluster0.p7xve.mongodb.net/placement_system_db?retryWrites=true&w=majority';
+const mongoSessionUri = process.env.MONGODB_URI || CLOUD_MONGODB_FALLBACK;
+
 // Configure Session Management
-let sessionStore;
-if (process.env.MONGODB_URI) {
-  sessionStore = MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    collectionName: 'sessions',
-    ttl: 24 * 60 * 60 // 1 day session TTL
-  });
-}
+const sessionStore = MongoStore.create({
+  mongoUrl: mongoSessionUri,
+  collectionName: 'sessions',
+  ttl: 24 * 60 * 60 // 1 day session TTL
+});
 
 app.use(
   session({
