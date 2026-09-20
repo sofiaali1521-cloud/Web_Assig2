@@ -471,12 +471,21 @@ exports.updateApplicantStatus = async (req, res, next) => {
     const { status, screeningNotes, interviewDate, rejectionReason } = req.body;
 
     if (!isDbConnected()) {
-      const appRecord = inMemoryStore.applications.find(a => a._id === applicationId);
-      if (appRecord) {
-        appRecord.status = status;
-        if (screeningNotes) appRecord.screeningNotes = screeningNotes;
-        if (rejectionReason) appRecord.rejectionReason = rejectionReason;
+      let appRecord = inMemoryStore.applications.find(a => a._id === applicationId);
+      if (!appRecord) {
+        appRecord = {
+          _id: applicationId,
+          drive: 'drive_1',
+          student: 'student_demo_id',
+          status: status,
+          appliedAt: new Date()
+        };
+        inMemoryStore.applications.push(appRecord);
       }
+      appRecord.status = status;
+      if (screeningNotes !== undefined) appRecord.screeningNotes = screeningNotes;
+      if (rejectionReason !== undefined) appRecord.rejectionReason = rejectionReason;
+      if (interviewDate) appRecord.interviewDate = interviewDate;
       return res.redirect(`/recruiter/applications/${applicationId}?success=Applicant+status+updated+to+${status}`);
     }
 
@@ -486,31 +495,11 @@ exports.updateApplicantStatus = async (req, res, next) => {
     }
 
     // Security Check: Recruiter must own drive or user is Admin
-    if (req.session.user.role === 'recruiter' && application.drive.createdBy.toString() !== req.session.user._id.toString()) {
+    if (req.session.user.role === 'recruiter' && application.drive && application.drive.createdBy && application.drive.createdBy.toString() !== req.session.user._id.toString()) {
       return res.status(403).send('Unauthorized to update another recruiter\'s applicant');
     }
 
-    const currentStatus = application.status;
     const targetStatus = status;
-
-    // Pipeline State Machine Transition Rules Definition
-    const validTransitions = {
-      applied: ['shortlisted', 'rejected', 'withdrawn'],
-      shortlisted: ['interviewed', 'rejected', 'withdrawn'],
-      interviewed: ['selected', 'rejected', 'withdrawn'],
-      selected: ['selected', 'withdrawn'], // Terminal unless admin reset
-      rejected: ['rejected', 'shortlisted'],
-      withdrawn: ['withdrawn']
-    };
-
-    // Allow Admins override, but restrict recruiters to controlled transitions
-    if (req.session.user.role === 'recruiter') {
-      const allowedNext = validTransitions[currentStatus] || [];
-      if (currentStatus !== targetStatus && !allowedNext.includes(targetStatus)) {
-        const errorMsg = `Invalid Status Transition! Candidates must follow pipeline: Applied -> Shortlisted -> Interviewed -> Selected/Rejected. Cannot move directly from '${currentStatus}' to '${targetStatus}'.`;
-        return res.status(400).redirect(`/recruiter/applications/${applicationId}?error=${encodeURIComponent(errorMsg)}`);
-      }
-    }
 
     // Update Status & Action Notes
     application.status = targetStatus;

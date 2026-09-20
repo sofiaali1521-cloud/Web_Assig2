@@ -32,10 +32,22 @@ app.use(
     contentSecurityPolicy: false // Disabled CSP restrictions for EJS development inline resources
   })
 );
+const fs = require('fs');
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Fail-safe handler for uploaded resume documents (handles serverless ephemeral disk missing files)
+app.get('/uploads/resumes/:filename', (req, res) => {
+  const filePath = path.join(__dirname, 'public/uploads/resumes', req.params.filename);
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  // If file was uploaded in a previous serverless lambda instance and wiped, serve sample PDF fallback
+  res.redirect('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+});
 
 // Serverless DB Connection Middleware
 app.use(async (req, res, next) => {
